@@ -7,7 +7,7 @@ export interface Product {
   price: number
   quantity: number
   category: Category
-  images: string[]
+  images: string[] // TODO: confirm strings, not { id, url } objects
   sellerId: number
   storeName: string
 }
