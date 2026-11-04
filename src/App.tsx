@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Auth
 import LoginPage from './pages/auth/LoginPage';
-// import RegisterPage from './pages/auth/RegisterPage';
+import RegisterPage from './pages/auth/RegisterPage';
 // import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 // Public and customer
@@ -48,8 +48,8 @@ function App() {
       <Routes>
         {/* Auth */}
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
+        <Route path="/register" element={<RegisterPage />} />
+        {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
 
         {/* Public and customer */}
         {/* <Route path="/" element={<HomePage />} />
