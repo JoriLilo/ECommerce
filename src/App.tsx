@@ -3,11 +3,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // Auth
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import Navbar from './components/layout/Navbar';
 // import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 // Public and customer
-// import HomePage from './pages/customer/HomePage';
-// import ProductListPage from './pages/customer/ProductListPage';
+import HomePage from './pages/customer/HomePage';
+import ProductListPage from './pages/customer/ProductListPage';
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/common/ProtectedRoute';
+
 // import ProductDetailsPage from './pages/customer/ProductDetailsPage';
 // import CartPage from './pages/customer/CartPage';
 // import CheckoutPage from './pages/customer/CheckoutPage';
@@ -45,49 +49,29 @@ function App() {
   
   return (
     <BrowserRouter>
+  
       <Routes>
+        {/* <Route path="/seller/products" element={
+            <ProtectedRoute allowedRoles={['SELLER']}>
+              <SellerProductsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/cart" element={
+            <ProtectedRoute>
+              <CartPage />
+            </ProtectedRoute>
+          } /> */}
+
         {/* Auth */}
-        <Route path="/login" element={<LoginPage />} />
+         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
 
-        {/* Public and customer */}
-        {/* <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductListPage />} />
-        <Route path="/products/:id" element={<ProductDetailsPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/orders" element={<CustomerOrdersPage />} />
-        <Route path="/orders/:id" element={<CustomerOrderDetailsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/addresses" element={<AddressesPage />} /> */}
+       <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductListPage />} />
 
-        {/* Seller */}
-        {/* <Route path="/seller/apply" element={<SellerApplicationPage />} />
-        <Route path="/seller/application-status" element={<SellerApplicationStatusPage />} />
-        <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
-        <Route path="/seller/store" element={<SellerStorePage />} />
-        <Route path="/seller/products" element={<SellerProductsPage />} />
-        <Route path="/seller/products/new" element={<AddProductPage />} />
-        <Route path="/seller/products/:id/edit" element={<EditProductPage />} />
-        <Route path="/seller/orders" element={<SellerOrdersPage />} />
-        <Route path="/seller/orders/:id" element={<SellerOrderDetailsPage />} />
-        <Route path="/seller/sales" element={<SellerSalesPage />} /> */}
-
-        {/* Admin */}
-        {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/customers" element={<AdminCustomersPage />} />
-        <Route path="/admin/sellers" element={<AdminSellersPage />} />
-        <Route path="/admin/seller-applications" element={<AdminSellerApplicationsPage />} />
-        <Route path="/admin/products" element={<AdminProductsPage />} />
-        <Route path="/admin/categories" element={<AdminCategoriesPage />} />
-        <Route path="/admin/orders" element={<AdminOrdersPage />} />
-        <Route path="/admin/payments" element={<AdminPaymentsPage />} />
-        <Route path="/admin/refunds" element={<AdminRefundsPage />} />
-        <Route path="/admin/reviews" element={<AdminReviewsPage />} /> */}
-
-        {/* Fallback */}
-        {/* <Route path="*" element={<NotFoundPage />} /> */}
+        </Route>
       </Routes>
     </BrowserRouter>
   );

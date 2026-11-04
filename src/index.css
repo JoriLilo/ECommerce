@@ -161,3 +161,135 @@
 .auth-link:hover {
   color: var(--accent-hover);
 }
+
+/* Header */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--card);
+  border-bottom: 1px solid rgba(201, 139, 185, 0.2);
+}
+.site-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+.site-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Links */
+.site-nav {
+  display: none;
+  gap: 2rem;
+}
+.site-nav a,
+.drawer-links a {
+  color: var(--text);
+  text-decoration: none;
+}
+.site-nav a:hover,
+.drawer-links a:hover {
+  color: var(--accent);
+}
+
+/* Icons */
+.site-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  text-decoration: none;
+}
+.icon-btn:hover {
+  color: var(--accent);
+}
+.user-name {
+  display: none;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.logout-btn {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+.logout-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+.hamburger {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.75rem;
+  cursor: pointer;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg);
+  color: var(--muted);
+}
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+/* Mobile drawer */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 60;
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 16rem;
+  background: var(--card);
+  z-index: 70;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .site-nav { display: flex; }
+  .hamburger { display: none; }
+  .user-name { display: inline; }
+}
