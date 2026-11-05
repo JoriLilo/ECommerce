@@ -1,126 +1,109 @@
+
 import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { getUser, logout } from '../../utils/auth'
 
 export default function Navbar() {
   const user = getUser()
-  const navigate = useNavigate()
-
   const [menuOpen, setMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
 
   function handleLogout() {
     logout()
     window.location.href = '/login'
   }
 
-  function handleSearch(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    navigate(`/products?search=${encodeURIComponent(searchText)}`)
-    setSearchOpen(false)
-  }
-
-  const links = (
-    <>
-      <Link to="/">Home</Link>
-      <Link to="/products">Products</Link>
-      <Link to="/orders">My Orders</Link>
-      {user?.role === 'SELLER' && <Link to="/seller/products">My Products</Link>}
-      {user?.role === 'ADMIN' && <Link to="/admin/dashboard">Admin</Link>}
-    </>
-  )
-
   return (
-    <>
-      <header className="site-header">
-        <div className="site-topbar">
-          <Link to="/" className="site-logo">Marketplace</Link>
+    <nav className="navbar">
 
-          <nav className="site-nav">{links}</nav>
+      <div className="navbar-left">
+        <Link to="/" className="nav-link">Home</Link>
+        <Link to="/products" className="nav-link">Products</Link>
 
-          <div className="site-icons">
-            <button
-              className="icon-btn"
-              onClick={() => setSearchOpen(!searchOpen)}
-              aria-label="Search"
-            >
-              <i className="bi bi-search" />
-            </button>
-
-            <Link to="/cart" className="icon-btn" aria-label="Cart">
-              <i className="bi bi-bag" />
-            </Link>
-
-            {user ? (
-              <>
-                <Link to="/profile" className="icon-btn" aria-label="Profile" title={user.name}>
-                  <i className="bi bi-person-check" />
-                </Link>
-                <span className="user-name">{user.name}</span>
-                <button className="logout-btn" onClick={handleLogout}>Logout</button>
-              </>
-            ) : (
-              <Link to="/login" className="icon-btn" aria-label="Login">
-                <i className="bi bi-person" />
-              </Link>
-            )}
-
-            <button
-              className="hamburger"
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <i className="bi bi-list" />
-            </button>
-          </div>
-        </div>
-
-        {searchOpen && (
-          <form className="search-bar" onSubmit={handleSearch}>
-            <i className="bi bi-search" />
-            <input
-              type="search"
-              placeholder="Search for a product..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              autoFocus
-            />
-            <button type="button" className="icon-btn" onClick={() => setSearchOpen(false)} aria-label="Close search">
-              <i className="bi bi-x" />
-            </button>
-          </form>
+        {user?.role === 'SELLER' && (
+          <Link to="/seller/products" className="nav-link">
+            My Products
+          </Link>
         )}
-      </header>
 
-      {menuOpen && (
-        <>
-          <div className="drawer-backdrop" onClick={() => setMenuOpen(false)} />
-          <aside className="drawer">
-            <button className="icon-btn" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-              <i className="bi bi-x" />
+        {user?.role === 'ADMIN' && (
+          <Link to="/admin/dashboard" className="nav-link">
+            Admin
+          </Link>
+        )}
+      </div>
+
+      <Link to="/" className="navbar-brand">
+        Via<span>Buy</span>
+      </Link>
+
+      <div className="navbar-right">
+
+        <Link to="/cart" className="nav-link cart-link">
+          <svg viewBox="0 0 24 24" width="20" height="20"
+            fill="none" stroke="currentColor"
+            strokeWidth="1.8" strokeLinecap="round"
+            strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+          Cart
+        </Link>
+
+        {user ? (
+          <div className="profile-menu">
+
+            <button
+              className="profile-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="profile-circle">
+                {user.name?.charAt(0).toUpperCase()}
+              </span>
             </button>
 
-            <nav className="drawer-links" onClick={() => setMenuOpen(false)}>
-              {links}
-              <Link to="/cart">Cart</Link>
-              {user ? (
-                <Link to="/profile">My Profile</Link>
-              ) : (
-                <>
-                  <Link to="/login">Login</Link>
-                  <Link to="/register">Register</Link>
-                </>
-              )}
-            </nav>
+            {menuOpen && (
+              <div className="dropdown-menu">
 
-            {user && (
-              <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                <div className="dropdown-header">
+                  <strong>{user.name}</strong>
+                  <span>{user.role}</span>
+                </div>
+
+                <div className="dropdown-divider" />
+
+                <Link
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  My Profile
+                </Link>
+
+                <Link
+                  to="/orders"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  My Orders
+                </Link>
+
+                <div className="dropdown-divider" />
+
+                <button onClick={handleLogout}>
+                  Logout
+                </button>
+
+              </div>
             )}
-          </aside>
-        </>
-      )}
-    </>
+
+          </div>
+        ) : (
+          <>
+            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link">Register</Link>
+          </>
+        )}
+
+      </div>
+    </nav>
   )
 }

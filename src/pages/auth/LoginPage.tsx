@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { login } from '../../services/authService'
-import { saveAuth } from '../../utils/auth'
-import AuthLayout from '../../components/common/AuthLayout'
-import FormField from '../../components/common/FormField'
-import ErrorMessage from '../../components/common/ErrorMessage'
-import SubmitButton from '../../components/common/SubmitButton'
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { login } from "../../services/authService";
+import { saveAuth } from "../../utils/auth";
+import AuthLayout from "../../components/common/AuthLayout";
+import FormField from "../../components/common/FormField";
+import ErrorMessage from "../../components/common/ErrorMessage";
+import SubmitButton from "../../components/ui/SubmitButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -40,15 +40,19 @@ export default function LoginPage() {
       });
   }
 
-    return (
+  return (
     <AuthLayout
       topText="Welcome back"
-      title={<>Login<span className="auth-dot">.</span></>}
+      title={
+        <>
+          Login<span className="auth-dot">.</span>
+        </>
+      }
       subtitle="Enter your credentials to access your account."
       onSubmit={handleSubmit}
       footer={
         <>
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="auth-link">
             Create account
           </Link>
@@ -70,7 +74,11 @@ export default function LoginPage() {
         onChange={setPassword}
       />
       <ErrorMessage message={error} />
-      <SubmitButton loading={loading} text="Sign in" loadingText="Logging in..." />
+      <SubmitButton
+        loading={loading}
+        text="Sign in"
+        loadingText="Logging in..."
+      />
     </AuthLayout>
   );
 }

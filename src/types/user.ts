@@ -2,7 +2,7 @@ export type Role = 'CUSTOMER' | 'SELLER' | 'ADMIN'
 
 export interface User {
   id: number
-  name: string
+  fullName: string
   email: string
   role: Role
 }
@@ -18,7 +18,7 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  name: string
+  fullName: string
   email: string
   password: string
   role: Role          //Exclude<Role, 'ADMIN'>   // 'CUSTOMER' | 'SELLER'
