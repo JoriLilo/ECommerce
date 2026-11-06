@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './api'
+import { apiGet, apiPost, apiPut } from './api'
 import { getUser, updateSavedUser } from '../utils/auth'
 import type { SellerApplicationInput, SellerProfile } from '../types/seller'
 
@@ -15,6 +15,14 @@ export function applyAsSeller(data: SellerApplicationInput) {
     businessPhone: data.businessPhone,
     businessAddress: data.businessAddress,
   })
+}
+
+export function updateSellerProfile(data: {
+  nipt: string
+  businessPhone: string
+  businessAddress: string
+}) {
+  return apiPut<SellerProfile>('/sellers/me', data)
 }
 
 export function saveSellerDraft(data: SellerApplicationInput) {

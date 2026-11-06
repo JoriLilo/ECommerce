@@ -6,14 +6,25 @@ export default function AdminDashboardPage() {
       <h1>Admin Dashboard</h1>
       <p className="page-subtitle">Manage the marketplace.</p>
       <div className="card">
+        <h2>Orders</h2>
+        <p>View all customer orders and their details.</p>
+        <Link to="/admin/orders" className="btn btn-primary">
+          View orders
+        </Link>
+      </div>
+      <div className="card">
         <h2>Categories</h2>
         <p>Add, rename or delete product categories.</p>
-        <Link to="/admin/categories" className="btn btn-primary">Manage categories</Link>
+        <Link to="/admin/categories" className="btn btn-primary">
+          Manage categories
+        </Link>
       </div>
       <div className="card">
         <h2>Users</h2>
         <p>View accounts and activate or suspend users.</p>
-        <Link to="/admin/users" className="btn btn-primary">Manage users</Link>
+        <Link to="/admin/users" className="btn btn-primary">
+          Manage users
+        </Link>
       </div>
       <div className="card">
         <h2>Seller applications</h2>

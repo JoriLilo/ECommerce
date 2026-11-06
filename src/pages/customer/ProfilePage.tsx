@@ -17,6 +17,11 @@ export default function ProfilePage() {
       </dl>
       <p>Profile editing will be available when account updates are supported.</p>
       <div className="page-actions">
+        {user?.role === 'SELLER' && (
+          <Link to="/seller/profile" className="btn btn-primary">
+            Edit business profile
+          </Link>
+        )}
         <Link to="/addresses" className="btn btn-primary">
           My addresses
         </Link>

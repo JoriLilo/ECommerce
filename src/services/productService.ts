@@ -18,6 +18,7 @@ export function toProduct(data: ProductResponse): Product {
     quantity: data.quantity,
     category: { id: data.categoryId, name: data.categoryName },
     images: data.images.map((image) => image.url),
+    imageDetails: data.images,
     sellerId: data.sellerId,
     storeName: `Seller #${data.sellerId}`,
     productStatus: data.status,
@@ -52,6 +53,14 @@ export async function getProduct(id: number): Promise<Product> {
 
 export function getMyProducts(): Promise<Product[]> {
   return loadProducts('/sellers/me/products')
+}
+
+export function getStoreProducts(storeId: number): Promise<Product[]> {
+  return loadProducts(`/stores/${storeId}/products`)
+}
+
+export function deleteProductImage(productId: number, imageId: number) {
+  return apiDelete(`/products/${productId}/images/${imageId}`)
 }
 
 export async function getMyProduct(id: number): Promise<Product> {

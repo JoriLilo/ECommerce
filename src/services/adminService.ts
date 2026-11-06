@@ -2,6 +2,21 @@ import type { ProductPage, ProductResponse } from '../types/product'
 import { apiGet, apiPatch } from './api'
 import type { SellerApplication, SellerApplicationPage } from '../types/seller'
 import type { User } from '../types/user'
+import type { Order, OrderSummary } from '../types/order'
+
+export function getAdminOrders(page: number, status: string) {
+  let path = `/admin/orders?page=${page}&size=20&sort=createdOn,desc`
+  if (status) path += `&status=${status}`
+  return apiGet<{ content: OrderSummary[]; totalPages: number }>(path)
+}
+
+export function getAdminOrder(id: number) {
+  return apiGet<Order>(`/admin/orders/${id}`)
+}
+
+export function updateSellerStatus(id: number, action: 'suspend' | 'activate') {
+  return apiPatch<SellerApplication>(`/admin/sellers/${id}/${action}`)
+}
 
 export interface AdminUser extends User {
   status: 'ACTIVE' | 'SUSPENDED'

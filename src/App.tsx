@@ -1,3 +1,8 @@
+import MyStorePage from './pages/seller/MyStorePage'
+import SellerProfilePage from './pages/seller/SellerProfilePage'
+import StorePage from './pages/customer/StorePage'
+import AdminOrdersPage from './pages/admin/AdminOrdersPage'
+import AdminOrderDetailsPage from './pages/admin/AdminOrderDetailsPage'
 import AdminProductsPage from './pages/admin/AdminProductsPage'
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
@@ -43,6 +48,23 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route path="/stores/:id" element={<StorePage />} />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders/:id"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminOrderDetailsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/addresses"
             element={
@@ -141,6 +163,8 @@ function App() {
             }
           >
             <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
+            <Route path="/seller/store" element={<MyStorePage />} />
+            <Route path="/seller/profile" element={<SellerProfilePage />} />
             <Route path="/seller/products" element={<SellerProductsPage />} />
             <Route path="/seller/products/new" element={<AddProductPage />} />
             <Route path="/seller/products/:id/edit" element={<EditProductPage />} />

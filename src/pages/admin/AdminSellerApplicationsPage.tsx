@@ -4,6 +4,7 @@ import {
   approveSeller,
   getSellerApplications,
   rejectSeller,
+  updateSellerStatus,
 } from '../../services/adminService'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import Loading from '../../components/common/Loading'
@@ -50,6 +51,28 @@ export default function AdminSellerApplicationsPage() {
       cancelled = true
     }
   }, [page, refreshCount])
+
+  async function changeSellerStatus(application: SellerApplication) {
+    const action = application.status === 'APPROVED' ? 'suspend' : 'activate'
+    if (
+      !window.confirm(
+        `${action === 'suspend' ? 'Suspend' : 'Activate'} seller ${application.user.fullName}?`,
+      )
+    )
+      return
+    setSavingId(application.id)
+    setError(null)
+    try {
+      const updated = await updateSellerStatus(application.id, action)
+      setApplications(
+        applications.map((item) => (item.id === updated.id ? updated : item)),
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not change seller status.')
+    } finally {
+      setSavingId(null)
+    }
+  }
 
   function loadPage(nextPage: number) {
     setLoading(true)
@@ -103,7 +126,7 @@ export default function AdminSellerApplicationsPage() {
       </Link>
       <h1>Seller Applications</h1>
       <p className="page-subtitle">
-        Review seller requests submitted to the marketplace.
+        Review applications and manage approved or suspended sellers.
       </p>
       <div className="page-actions">
         <span>{total} applications</span>
@@ -136,6 +159,17 @@ export default function AdminSellerApplicationsPage() {
             <p>Submitted: {new Date(application.createdOn).toLocaleDateString()}</p>
             {application.rejectionReason && (
               <p>Rejection reason: {application.rejectionReason}</p>
+            )}
+            {(application.status === 'APPROVED' ||
+              application.status === 'SUSPENDED') && (
+              <button
+                type="button"
+                className="btn"
+                disabled={savingId !== null}
+                onClick={() => changeSellerStatus(application)}
+              >
+                {application.status === 'APPROVED' ? 'Suspend seller' : 'Activate seller'}
+              </button>
             )}
             {application.status === 'PENDING' && (
               <div>

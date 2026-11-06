@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import ProductForm from '../../features/products/ProductForm'
 import {
   getMyProduct,
+  deleteProductImage,
   updateProduct,
   uploadProductImage,
 } from '../../services/productService'
@@ -26,6 +27,7 @@ export default function EditProductPage() {
     async function loadProduct() {
       setLoading(true)
       setError(null)
+      setProduct(null)
       try {
         const result = await getMyProduct(Number(id))
         if (!cancelled) setProduct(result)
@@ -78,6 +80,22 @@ export default function EditProductPage() {
     }
   }
 
+  async function handleDeleteImage(imageId: number) {
+    if (!window.confirm('Delete this product image?')) return
+    setUploading(true)
+    setError(null)
+    setMessage('')
+    try {
+      await deleteProductImage(Number(id), imageId)
+      setProduct(await getMyProduct(Number(id)))
+      setMessage('Image deleted.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete image.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   if (loading) return <p role="status">Loading product…</p>
 
   return (
@@ -110,13 +128,22 @@ export default function EditProductPage() {
           <section className="seller-panel">
             <h2>Product images</h2>
             <div className="seller-image-list">
-              {product.images.map((url) => (
-                <img
-                  className="seller-product-image"
-                  key={url}
-                  src={url}
-                  alt={product.name}
-                />
+              {product.imageDetails.map((image) => (
+                <div key={image.id}>
+                  <img
+                    className="seller-product-image"
+                    src={image.url}
+                    alt={product.name}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    disabled={uploading}
+                    onClick={() => handleDeleteImage(image.id)}
+                  >
+                    Delete image
+                  </button>
+                </div>
               ))}
             </div>
             <label htmlFor="product-image">Choose a JPEG, PNG or WebP image</label>

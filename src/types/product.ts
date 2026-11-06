@@ -10,6 +10,7 @@ export interface Product {
   quantity: number
   category: Category
   images: string[]
+  imageDetails: { id: number; url: string }[]
   sellerId: number
   storeName: string
   productStatus: ProductStatus

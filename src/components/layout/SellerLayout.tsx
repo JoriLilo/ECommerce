@@ -38,6 +38,8 @@ export default function SellerLayout() {
     <section className="seller-area">
       <nav className="seller-navigation" aria-label="Seller navigation">
         <NavLink to="/seller/dashboard">Dashboard</NavLink>
+        <NavLink to="/seller/store">My Store</NavLink>
+        <NavLink to="/seller/profile">Business Profile</NavLink>
         <NavLink to="/seller/products">My Products</NavLink>
         <NavLink to="/seller/products/new">Add Product</NavLink>
         <NavLink to="/seller/orders">Orders</NavLink>
