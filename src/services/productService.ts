@@ -1,9 +1,5 @@
-import { apiGet } from './api'
-import { mockProducts, categories } from '../features/products/mockProducts'
-import { getUser } from '../utils/auth'
-import type { Product } from '../types/product'
-
-const USE_MOCK = true // set to false when GET /products works
+import { apiGet, apiPost, apiPut, apiDelete } from './api'
+import type { Product, ProductPage, ProductResponse } from '../types/product'
 
 export interface ProductInput {
   name: string
@@ -11,54 +7,84 @@ export interface ProductInput {
   price: number
   quantity: number
   categoryId: number
-  imageUrl: string
 }
 
-export async function getProducts(): Promise<Product[]> {
-  if (USE_MOCK) return mockProducts
-  return apiGet<Product[]>('/products')
+export function toProduct(data: ProductResponse): Product {
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    price: Number(data.price),
+    quantity: data.quantity,
+    category: { id: data.categoryId, name: data.categoryName },
+    images: data.images.map((image) => image.url),
+    sellerId: data.sellerId,
+    storeName: `Seller #${data.sellerId}`,
+    productStatus: data.status,
+  }
 }
 
-export async function getProduct(id: number): Promise<Product | undefined> {
-  if (USE_MOCK) return mockProducts.find((p) => p.id === id)
-  return apiGet<Product>(`/products/${id}`)
+async function loadProducts(path: string): Promise<Product[]> {
+  const products: Product[] = []
+  let page = 0
+  let totalPages = 1
+  while (page < totalPages) {
+    const result = await apiGet<ProductPage>(
+      `${path}?page=${page}&size=50&sort=createdOn,desc`,
+    )
+    for (const product of result.content) {
+      products.push(toProduct(product))
+    }
+    totalPages = result.totalPages
+    page = page + 1
+  }
+  return products
 }
 
-export async function getMyProducts(): Promise<Product[]> {
-  const user = getUser()
-  return mockProducts.filter((p) => p.sellerId === user?.id) // later: GET /sellers/me/products
+export function getProducts(): Promise<Product[]> {
+  return loadProducts('/products')
 }
 
-// The mock changes only the in-memory array, so a refresh resets it.
-export async function createProduct(input: ProductInput): Promise<void> {
-  const user = getUser()
-  if (!user) return
-  mockProducts.push({
-    id: Date.now(),
-    name: input.name,
-    description: input.description,
+export async function getProduct(id: number): Promise<Product> {
+  const product = await apiGet<ProductResponse>(`/products/${id}`)
+  return toProduct(product)
+}
+
+export function getMyProducts(): Promise<Product[]> {
+  return loadProducts('/sellers/me/products')
+}
+
+export async function getMyProduct(id: number): Promise<Product> {
+  const product = await apiGet<ProductResponse>(`/sellers/me/products/${id}`)
+  return toProduct(product)
+}
+
+function productBody(input: ProductInput) {
+  return {
+    name: input.name.trim(),
+    description: input.description.trim(),
     price: input.price,
-    quantity: input.quantity,
-    category: categories.find((c) => c.id === input.categoryId) ?? categories[0],
-    images: [input.imageUrl],
-    sellerId: user.id,
-    storeName: `${user.name}'s store`,
-    productStatus: 'APPROVED', // real flow: PENDING until the admin approves
-  })
+    stockQuantity: input.quantity,
+    categoryId: input.categoryId,
+  }
 }
 
-export async function updateProduct(id: number, input: ProductInput): Promise<void> {
-  const p = mockProducts.find((x) => x.id === id)
-  if (!p) return
-  p.name = input.name
-  p.description = input.description
-  p.price = input.price
-  p.quantity = input.quantity
-  p.category = categories.find((c) => c.id === input.categoryId) ?? p.category
-  p.images = [input.imageUrl]
+export async function createProduct(input: ProductInput): Promise<Product> {
+  const product = await apiPost<ProductResponse>('/products', productBody(input))
+  return toProduct(product)
 }
 
-export async function deleteProduct(id: number): Promise<void> {
-  const index = mockProducts.findIndex((p) => p.id === id)
-  if (index >= 0) mockProducts.splice(index, 1)
+export async function updateProduct(id: number, input: ProductInput): Promise<Product> {
+  const product = await apiPut<ProductResponse>(`/products/${id}`, productBody(input))
+  return toProduct(product)
+}
+
+export function deleteProduct(id: number): Promise<void> {
+  return apiDelete(`/products/${id}`)
+}
+
+export function uploadProductImage(id: number, file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return apiPost<{ id: number; url: string }>(`/products/${id}/images`, form)
 }

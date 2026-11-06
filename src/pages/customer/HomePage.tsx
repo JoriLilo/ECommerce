@@ -1,17 +1,57 @@
-import { Link } from 'react-router-dom';
-
+import { useEffect, useState } from 'react'
+import { getProducts } from '../../services/productService'
+import type { Product } from '../../types/product'
+import ProductCard from '../../features/products/ProductCard'
+import ErrorMessage from '../../components/common/ErrorMessage'
+import './HomePage.css'
+import { Link } from 'react-router-dom'
 
 export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    let cancelled = false
+    async function loadProducts() {
+      try {
+        const result = await getProducts()
+        if (!cancelled) setProducts(result.slice(0, 4))
+      } catch (error) {
+        if (!cancelled)
+          setError(error instanceof Error ? error.message : 'Could not load products.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    loadProducts()
+    return () => {
+      cancelled = true
+    }
+  }, [])
   return (
     <div className="bg-[#FFF9FC] text-[#2E0F32]">
-     
+      <section className="home-hero">
+        <div className="home-hero-copy">
+          <p className="home-hero-eyebrow">GOOD FINDS. EVERY DAY.</p>
+          <h1>
+            A little discovery.
+            <br />A lot to love.
+          </h1>
+          <p>Shop everyday essentials and unexpected favorites, all in one place.</p>
+          <Link to="/products">
+            Explore products <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <img
+          src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700"
+          alt="Headphones on a bright yellow background"
+        />
+      </section>
 
       {/* Categories */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="mb-2 font-serif text-3xl">Explore categories</h2>
-        <p className="mb-8 text-gray-500">
-          Find exactly what you're looking for.
-        </p>
+        <p className="mb-8 text-gray-500">Find exactly what you're looking for.</p>
 
         <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
           <Link to="/products" className="group">
@@ -20,9 +60,7 @@ export default function HomePage() {
               alt="Fashion"
               className="h-48 w-full object-cover"
             />
-            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">
-              Fashion
-            </h3>
+            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">Fashion</h3>
           </Link>
 
           <Link to="/products" className="group">
@@ -31,9 +69,7 @@ export default function HomePage() {
               alt="Electronics"
               className="h-48 w-full object-cover"
             />
-            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">
-              Electronics
-            </h3>
+            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">Electronics</h3>
           </Link>
 
           <Link to="/products" className="group">
@@ -42,9 +78,7 @@ export default function HomePage() {
               alt="Home and living"
               className="h-48 w-full object-cover"
             />
-            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">
-              Home 
-            </h3>
+            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">Home</h3>
           </Link>
 
           <Link to="/products" className="group">
@@ -53,9 +87,7 @@ export default function HomePage() {
               alt="Accessories"
               className="h-48 w-full object-cover"
             />
-            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">
-              Accessories
-            </h3>
+            <h3 className="mt-3 font-semibold group-hover:text-[#A66A9A]">Accessories</h3>
           </Link>
         </div>
       </section>
@@ -64,7 +96,7 @@ export default function HomePage() {
       <section className="bg-[#F8F0F6] py-16">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-8 flex items-center justify-between">
-            <h2 className="font-serif text-3xl">Featured products</h2>
+            <h2 className="font-serif text-3xl">Latest products</h2>
 
             <Link
               to="/products"
@@ -74,46 +106,15 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500"
-                alt="Shoulder bag"
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-3 font-semibold">Everyday Shoulder Bag</h3>
-              <p className="mt-1 text-[#A66A9A]">€49.99</p>
-            </div>
-
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=500"
-                alt="Ceramic vase"
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-3 font-semibold">Minimal Ceramic Vase</h3>
-              <p className="mt-1 text-[#A66A9A]">€28.50</p>
-            </div>
-
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500"
-                alt="Sneakers"
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-3 font-semibold">Classic Sneakers</h3>
-              <p className="mt-1 text-[#A66A9A]">€74.99</p>
-            </div>
-
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"
-                alt="Headphones"
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-3 font-semibold">Wireless Headphones</h3>
-              <p className="mt-1 text-[#A66A9A]">€89.00</p>
-            </div>
+          <ErrorMessage message={error} />
+          {loading && <p role="status">Loading products…</p>}
+          {!loading && !error && products.length === 0 && (
+            <p>No approved products yet.</p>
+          )}
+          <div className="product-grid">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </div>
       </section>
@@ -124,9 +125,7 @@ export default function HomePage() {
           Your next favorite find is here.
         </h2>
 
-        <p className="mb-8 text-[#C98BB9]">
-          Discover products from sellers you'll love.
-        </p>
+        <p className="mb-8 text-[#C98BB9]">Discover products from sellers you'll love.</p>
 
         <Link
           to="/products"
@@ -136,5 +135,5 @@ export default function HomePage() {
         </Link>
       </section>
     </div>
-  );
+  )
 }

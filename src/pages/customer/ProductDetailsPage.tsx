@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getProduct } from '../../services/productService'
 import { addToCart } from '../../services/cartService'
+import { getUser } from '../../utils/auth'
+import ErrorMessage from '../../components/common/ErrorMessage'
 import Loading from '../../components/common/Loading'
 import EmptyState from '../../components/common/EmptyState'
 import Button from '../../components/ui/Button'
@@ -10,42 +12,104 @@ import type { Product } from '../../types/product'
 
 export default function ProductDetailsPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(null)
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    getProduct(Number(id))
-      .then((p) => setProduct(p ?? null))
-      .finally(() => setLoading(false))
+    let cancelled = false
+    async function loadProduct() {
+      setLoading(true)
+      setProduct(null)
+      setError(null)
+      setQuantity(1)
+      setMessage('')
+      try {
+        const loadedProduct = await getProduct(Number(id))
+        if (!cancelled) {
+          setProduct(loadedProduct ?? null)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setError(error instanceof Error ? error.message : 'Could not load product.')
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+    loadProduct()
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   if (loading) return <Loading />
-  if (!product) return <EmptyState message="Product not found." />
+  if (error && !product) return <ErrorMessage message={error} />
+  if (!product || product.productStatus !== 'APPROVED')
+    return <EmptyState message="Product not found." />
 
-  const handleAdd = () => {
-    addToCart(product, quantity)
-    setMessage('Added to cart')
+  function handleAdd() {
+    if (!product) {
+      return
+    }
+    if (!getUser()) {
+      navigate('/login')
+      return
+    }
+    setError(null)
+    try {
+      addToCart(product, quantity)
+      setMessage('Added to cart')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not add product.')
+    }
   }
 
   return (
-    <div className="details">
-      <img src={product.images[0]} alt={product.name} />
-      <div>
-        <h1>{product.name}</h1>
-        <p className="product-store">{product.category.name} · {product.storeName}</p>
-        <p>{product.description}</p>
-        <p className="product-price">${product.price.toFixed(2)}</p>
-        {product.quantity === 0 ? (
-          <p>Out of stock</p>
+    <div className="content-page">
+      <Link to="/products" className="text-link">
+        ← Back to products
+      </Link>
+      <div className="details">
+        {product.images[0] ? (
+          <img src={product.images[0]} alt={product.name} />
         ) : (
-          <>
-            <QuantityInput value={quantity} max={product.quantity} onChange={setQuantity} />
-            <Button onClick={handleAdd}>Add to cart</Button>
-          </>
+          <p>No image uploaded yet.</p>
         )}
-        {message && <p>{message}</p>}
+        <div>
+          <h1>{product.name}</h1>
+          <p className="product-store">
+            {product.category.name} · {product.storeName}
+          </p>
+          <p>{product.description}</p>
+          <p className="product-price">${product.price.toFixed(2)}</p>
+          {product.quantity === 0 ? (
+            <p>Out of stock</p>
+          ) : (
+            <>
+              <QuantityInput
+                value={quantity}
+                max={product.quantity}
+                onChange={setQuantity}
+              />
+              <Button onClick={handleAdd}>Add to cart</Button>
+            </>
+          )}
+          <ErrorMessage message={error} />
+          {message && (
+            <p role="status">
+              {message} ·{' '}
+              <Link to="/cart" className="text-link">
+                View cart
+              </Link>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

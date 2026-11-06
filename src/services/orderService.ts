@@ -4,86 +4,134 @@ import type { CartItem } from '../types/cart'
 import type { Address } from '../types/address'
 import type { Order, OrderStatus, SellerOrder } from '../types/order'
 
-const KEY = 'orders'
+const ORDERS_KEY = 'orders'
 
-function load(): Order[] {
+function loadOrders(): Order[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? '[]') as Order[]
+    return JSON.parse(localStorage.getItem(ORDERS_KEY) ?? '[]') as Order[]
   } catch {
     return []
   }
 }
 
-function save(orders: Order[]) {
-  localStorage.setItem(KEY, JSON.stringify(orders))
+function saveOrders(orders: Order[]): void {
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
 }
 
-// One customer order, split into one seller order per seller (SRS 4.4)
+// Demo only: one buyer order contains a separate part for each seller.
 export function createOrder(items: CartItem[], address: Address): Order {
   const user = getUser()
-  if (!user) throw new Error('You must be logged in')
-  const now = new Date().toISOString()
-  const orders = load()
-  const orderId = orders.length + 1
+  if (!user) {
+    throw new Error('You must be logged in.')
+  }
+  if (items.length === 0) {
+    throw new Error('Your cart is empty.')
+  }
+  for (const item of items) {
+    if (
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1 ||
+      item.quantity > item.product.quantity
+    ) {
+      throw new Error('Please check the quantities in your cart.')
+    }
+  }
 
-  const sellerIds = [...new Set(items.map((i) => i.product.sellerId))]
-  const sellerOrders: SellerOrder[] = sellerIds.map((sellerId, index) => {
-    const mine = items.filter((i) => i.product.sellerId === sellerId)
-    return {
-      id: orderId * 100 + index,
-      sellerId,
-      storeName: mine[0].product.storeName,
-      status: 'PAID',
-      totalPrice: cartTotal(mine),
-      orderItems: mine.map((i) => ({
-        id: i.id,
-        productId: i.product.id,
-        productName: i.product.name,
-        productImage: i.product.images[0] ?? '',
-        quantity: i.quantity,
-        price: i.product.price,
+  const orders = loadOrders()
+  const orderId = orders.length + 1
+  const now = new Date().toISOString()
+  const sellerOrders: SellerOrder[] = []
+
+  for (const item of items) {
+    const sellerId = item.product.sellerId
+    let sellerOrder = sellerOrders.find(
+      (sellerOrder) => sellerOrder.sellerId === sellerId,
+    )
+
+    if (!sellerOrder) {
+      sellerOrder = {
+        id: orderId * 100 + sellerOrders.length,
+        sellerId: sellerId,
+        storeName: item.product.storeName,
+        status: 'PAID', // Demo status. No real payment is collected.
+        totalPrice: 0,
+        orderItems: [],
         createdAt: now,
         updatedAt: now,
-      })),
+      }
+      sellerOrders.push(sellerOrder)
+    }
+
+    sellerOrder.orderItems.push({
+      id: item.id,
+      productId: item.product.id,
+      productName: item.product.name,
+      productImage: item.product.images[0] ?? '',
+      quantity: item.quantity,
+      price: item.product.price,
       createdAt: now,
       updatedAt: now,
-    }
-  })
+    })
+    sellerOrder.totalPrice = sellerOrder.totalPrice + item.product.price * item.quantity
+  }
 
   const order: Order = {
     id: orderId,
     customer: user,
     shippingAddress: address,
-    status: 'PAID', // mock: real flow starts at PENDING_PAYMENT until Stripe confirms
+    status: 'PAID', // Real checkout must wait for backend payment verification.
     totalAmount: cartTotal(items),
-    sellerOrders,
+    sellerOrders: sellerOrders,
     createdAt: now,
     updatedAt: now,
   }
-  save([...orders, order])
+  orders.push(order)
+  saveOrders(orders)
   return order
 }
 
 export function getOrders(): Order[] {
   const user = getUser()
-  return load().filter((o) => o.customer.id === user?.id)
+  const myOrders: Order[] = []
+  for (const order of loadOrders()) {
+    if (order.customer.id === user?.id) {
+      myOrders.push(order)
+    }
+  }
+  return myOrders
 }
 
 export function getOrder(id: number): Order | undefined {
-  return load().find((o) => o.id === id)
+  for (const order of getOrders()) {
+    if (order.id === id) {
+      return order
+    }
+  }
+  return undefined
 }
 
-// Mock: every seller order. Real: GET /sellers/me/orders
 export function getSellerOrders(): SellerOrder[] {
-  return load().flatMap((o) => o.sellerOrders)
+  const user = getUser()
+  const myOrders: SellerOrder[] = []
+  for (const order of loadOrders()) {
+    for (const sellerOrder of order.sellerOrders) {
+      if (sellerOrder.sellerId === user?.id) {
+        myOrders.push(sellerOrder)
+      }
+    }
+  }
+  return myOrders
 }
 
-// Real: PATCH /seller-orders/{id}/status
-export function updateSellerOrderStatus(id: number, status: OrderStatus) {
-  save(
-    load().map((o) => ({
-      ...o,
-      sellerOrders: o.sellerOrders.map((s) => (s.id === id ? { ...s, status } : s)),
-    })),
-  )
+export function updateSellerOrderStatus(id: number, status: OrderStatus): void {
+  const user = getUser()
+  const orders = loadOrders()
+  for (const order of orders) {
+    for (const sellerOrder of order.sellerOrders) {
+      if (sellerOrder.id === id && sellerOrder.sellerId === user?.id) {
+        sellerOrder.status = status
+      }
+    }
+  }
+  saveOrders(orders)
 }

@@ -30,3 +30,11 @@ export function getToken(): string | null {
 export function logout() {
   localStorage.removeItem(AUTH_KEY)
 }
+
+export function updateSavedUser(user: User) {
+  const auth = getAuth()
+  if (auth) {
+    auth.user = user
+    saveAuth(auth)
+  }
+}

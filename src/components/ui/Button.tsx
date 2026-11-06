@@ -7,9 +7,19 @@ interface ButtonProps {
   variant?: 'primary' | 'danger'
 }
 
-export default function Button({ children, onClick, disabled, variant = 'primary' }: ButtonProps) {
+export default function Button({
+  children,
+  onClick,
+  disabled,
+  variant = 'primary',
+}: ButtonProps) {
   return (
-    <button onClick={onClick} disabled={disabled} className={`btn btn-${variant}`}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`btn btn-${variant}`}
+    >
       {children}
     </button>
   )

@@ -8,13 +8,15 @@ export default function CustomerOrdersPage() {
   if (orders.length === 0) return <EmptyState message="No orders yet." />
 
   return (
-    <div>
+    <div className="content-page">
       <h1>My Orders</h1>
-      {orders.map((o) => (
-        <Link key={o.id} to={`/orders/${o.id}`} className="row">
-          <span className="row-grow">Order #{o.id} · {new Date(o.createdAt).toLocaleDateString()}</span>
-          <span>${o.totalAmount.toFixed(2)}</span>
-          <StatusBadge status={o.status} />
+      {orders.map((order) => (
+        <Link key={order.id} to={`/orders/${order.id}`} className="row">
+          <span className="row-grow">
+            Order #{order.id} · {new Date(order.createdAt).toLocaleDateString()}
+          </span>
+          <span>${order.totalAmount.toFixed(2)}</span>
+          <StatusBadge status={order.status} />
         </Link>
       ))}
     </div>

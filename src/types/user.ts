@@ -21,5 +21,5 @@ export interface RegisterRequest {
   fullName: string
   email: string
   password: string
-  role: Role          //Exclude<Role, 'ADMIN'>   // 'CUSTOMER' | 'SELLER'
+  role: 'CUSTOMER' | 'SELLER'
 }

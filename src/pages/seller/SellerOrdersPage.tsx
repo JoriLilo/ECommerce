@@ -16,18 +16,28 @@ export default function SellerOrdersPage() {
   if (orders.length === 0) return <EmptyState message="No orders yet." />
 
   return (
-    <div>
+    <div className="content-page">
       <h1>Orders</h1>
-      {orders.map((s) => (
-        <div key={s.id} className="card">
-          <h3>Order part #{s.id} <StatusBadge status={s.status} /></h3>
-          {s.orderItems.map((i) => (
-            <p key={i.id}>{i.quantity} x {i.productName}</p>
+      {orders.map((sellerOrder) => (
+        <div key={sellerOrder.id} className="card">
+          <h3>
+            Order part #{sellerOrder.id} <StatusBadge status={sellerOrder.status} />
+          </h3>
+          {sellerOrder.orderItems.map((item) => (
+            <p key={item.id}>
+              {item.quantity} x {item.productName}
+            </p>
           ))}
-          <Button onClick={() => setStatus(s.id, 'PROCESSING')} disabled={s.status !== 'PAID'}>
+          <Button
+            onClick={() => setStatus(sellerOrder.id, 'PROCESSING')}
+            disabled={sellerOrder.status !== 'PAID'}
+          >
             Processing
           </Button>
-          <Button onClick={() => setStatus(s.id, 'SHIPPED')} disabled={s.status !== 'PROCESSING'}>
+          <Button
+            onClick={() => setStatus(sellerOrder.id, 'SHIPPED')}
+            disabled={sellerOrder.status !== 'PROCESSING'}
+          >
             Shipped
           </Button>
         </div>

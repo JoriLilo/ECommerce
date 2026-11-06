@@ -7,34 +7,71 @@ interface ApiErrorBody {
   fieldErrors?: Record<string, string>
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = getToken()
+// T describes the response, similar to a generic type in Java.
+async function request<T>(path: string, method: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {}
-  if (typeof options?.body === 'string') headers['Content-Type'] = 'application/json'
-  if (token) headers.Authorization = `Bearer ${token}`
+  const token = getToken()
+  let requestBody: string | FormData | undefined
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: { ...headers, ...options?.headers },
+  if (body instanceof FormData) {
+    requestBody = body
+  } else if (body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    requestBody = JSON.stringify(body)
+  }
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const response = await fetch(BASE_URL + path, {
+    method: method,
+    headers: headers,
+    body: requestBody,
   })
 
-  if (!res.ok) {
-    let message = `Request failed: ${res.status}`
+  if (!response.ok) {
+    let message = `Request failed: ${response.status}`
+    if (response.status === 401)
+      message = 'Your session has expired. Please sign in again.'
+    if (response.status === 403)
+      message =
+        'This account does not have access. Please sign in again to refresh your role.'
     try {
-      const body: ApiErrorBody = await res.json()
-      const details = body.fieldErrors ? Object.values(body.fieldErrors) : []
-      if (details.length > 0) message = details.join('. ')
-      else if (body.message) message = body.message
+      const errorBody: ApiErrorBody = await response.json()
+      const fieldMessages = Object.values(errorBody.fieldErrors || {})
+      if (fieldMessages.length > 0) {
+        message = fieldMessages.join('. ')
+      } else if (errorBody.message) {
+        message = errorBody.message
+      }
     } catch {
-      /* no JSON body */
+      // Some failed responses do not have a JSON body.
     }
     throw new Error(message)
   }
 
-  if (res.status === 204) return undefined as T
-  return res.json() as Promise<T>
+  if (response.status === 204) {
+    return undefined as T
+  }
+  return response.json() as Promise<T>
 }
 
-export const apiGet = <T>(path: string) => request<T>(path)
-export const apiPost = <T>(path: string, body: unknown) =>
-  request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+export function apiGet<T>(path: string): Promise<T> {
+  return request<T>(path, 'GET')
+}
+
+export function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, 'POST', body)
+}
+
+export function apiPatch<T>(path: string, body?: unknown): Promise<T> {
+  return request<T>(path, 'PATCH', body)
+}
+
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, 'PUT', body)
+}
+
+export function apiDelete(path: string): Promise<void> {
+  return request<void>(path, 'DELETE')
+}

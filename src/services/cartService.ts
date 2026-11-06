@@ -1,41 +1,89 @@
 import type { CartItem } from '../types/cart'
 import type { Product } from '../types/product'
 
-const KEY = 'cart'
+import { getUser } from '../utils/auth'
+
+function cartKey(): string {
+  const user = getUser()
+  if (user) {
+    return `cart-${user.id}`
+  }
+  return 'cart-guest'
+}
 
 export function getCart(): CartItem[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? '[]') as CartItem[]
+    return JSON.parse(localStorage.getItem(cartKey()) ?? '[]') as CartItem[]
   } catch {
     return []
   }
 }
 
 function save(items: CartItem[]): CartItem[] {
-  localStorage.setItem(KEY, JSON.stringify(items))
+  localStorage.setItem(cartKey(), JSON.stringify(items))
+  window.dispatchEvent(new Event('cart-updated'))
   return items
 }
 
-export function addToCart(product: Product, quantity: number) {
+export function addToCart(product: Product, quantity: number): void {
   const items = getCart()
-  const existing = items.find((i) => i.product.id === product.id)
-  if (existing) existing.quantity += quantity
-  else items.push({ id: product.id, product, quantity })
+  const existingItem = items.find((item) => item.product.id === product.id)
+  let totalQuantity = quantity
+  if (existingItem) {
+    totalQuantity = existingItem.quantity + quantity
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1 || totalQuantity > product.quantity) {
+    throw new Error('The requested quantity is not available.')
+  }
+  if (product.productStatus !== 'APPROVED') {
+    throw new Error('This product is not available.')
+  }
+
+  if (existingItem) {
+    existingItem.quantity = totalQuantity
+  } else {
+    items.push({ id: product.id, product: product, quantity: quantity })
+  }
   save(items)
 }
 
 export function updateQuantity(productId: number, quantity: number): CartItem[] {
-  return save(getCart().map((i) => (i.product.id === productId ? { ...i, quantity } : i)))
+  const items = getCart()
+  const selectedItem = items.find((item) => item.product.id === productId)
+  if (!selectedItem) {
+    return items
+  }
+  if (
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > selectedItem.product.quantity
+  ) {
+    return items
+  }
+  selectedItem.quantity = quantity
+  return save(items)
 }
 
 export function removeFromCart(productId: number): CartItem[] {
-  return save(getCart().filter((i) => i.product.id !== productId))
+  const remainingItems: CartItem[] = []
+  for (const item of getCart()) {
+    if (item.product.id !== productId) {
+      remainingItems.push(item)
+    }
+  }
+  return save(remainingItems)
 }
 
 export function clearCart() {
-  localStorage.removeItem(KEY)
+  localStorage.removeItem(cartKey())
+  window.dispatchEvent(new Event('cart-updated'))
 }
 
 export function cartTotal(items: CartItem[]): number {
-  return items.reduce((sum, i) => sum + i.product.price * i.quantity, 0)
+  let total = 0
+  for (const item of items) {
+    total = total + item.product.price * item.quantity
+  }
+  return total
 }

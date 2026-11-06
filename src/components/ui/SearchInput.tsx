@@ -1,4 +1,3 @@
-
 interface SearchInputProps {
   value: string
   onChange: (value: string) => void
@@ -12,7 +11,6 @@ export default function SearchInput({
 }: SearchInputProps) {
   return (
     <div className="search-wrapper">
-
       <svg
         viewBox="0 0 24 24"
         width="20"
@@ -34,7 +32,6 @@ export default function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         className="search-input"
       />
-
     </div>
   )
 }
