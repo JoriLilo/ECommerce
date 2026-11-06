@@ -2,17 +2,36 @@ import { getToken } from '../utils/auth'
 
 const BASE_URL = '/api'
 
-interface ApiErrorBody {
-  message?: string
-  fieldErrors?: Record<string, string>
+
+async function getErrorMessage(response: Response): Promise<string> {
+  const text = await response.text()
+
+  if (text.trim() === 'Invalid CORS request') {
+    return 'The backend does not allow this frontend address. Check the backend CORS settings.'
+  }
+
+  try {
+    const error: { message?: string; fieldErrors?: Record<string, string> } = JSON.parse(text)
+    const fields = Object.values(error.fieldErrors || {})
+    if (fields.length > 0) return fields.join('. ')
+    if (error.message) return error.message
+  } catch {
+
+  }
+
+  if (response.status === 401) return 'Please sign in again.'
+  if (response.status === 403) return 'You do not have permission to do this.'
+  return `Request failed: ${response.status}`
 }
 
-// T describes the response, similar to a generic type in Java.
+// T is the response type, similar to a generic type in Java.
 async function request<T>(path: string, method: string, body?: unknown): Promise<T> {
+  // 1. Add the saved login token.
   const headers: Record<string, string> = {}
   const token = getToken()
   let requestBody: string | FormData | undefined
 
+  // 2. Send images as FormData and other data as JSON.
   if (body instanceof FormData) {
     requestBody = body
   } else if (body !== undefined) {
@@ -23,37 +42,24 @@ async function request<T>(path: string, method: string, body?: unknown): Promise
     headers.Authorization = `Bearer ${token}`
   }
 
+  // 3. Send the request to the backend.
   const response = await fetch(BASE_URL + path, {
-    method: method,
-    headers: headers,
+    method,
+    headers,
     body: requestBody,
   })
 
   if (!response.ok) {
-    let message = `Request failed: ${response.status}`
-    if (response.status === 401)
-      message = 'Your session has expired. Please sign in again.'
-    if (response.status === 403)
-      message =
-        'This account does not have access. Please sign in again to refresh your role.'
-    try {
-      const errorBody: ApiErrorBody = await response.json()
-      const fieldMessages = Object.values(errorBody.fieldErrors || {})
-      if (fieldMessages.length > 0) {
-        message = fieldMessages.join('. ')
-      } else if (errorBody.message) {
-        message = errorBody.message
-      }
-    } catch {
-      // Some failed responses do not have a JSON body.
-    }
-    throw new Error(message)
+    throw new Error(await getErrorMessage(response))
   }
 
+  // 4. Return the result. A 204 response has no JSON body.
   if (response.status === 204) {
     return undefined as T
   }
-  return response.json() as Promise<T>
+  const text = await response.text()
+  if (!text) return undefined as T
+  return JSON.parse(text) as T
 }
 
 export function apiGet<T>(path: string): Promise<T> {

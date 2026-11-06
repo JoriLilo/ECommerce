@@ -1,45 +1,103 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getSellerOrders, updateSellerOrderStatus } from '../../services/orderService'
-import EmptyState from '../../components/common/EmptyState'
+import type { OrderStatus, SellerOrderDetails } from '../../types/order'
+import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
-import Button from '../../components/ui/Button'
-import type { OrderStatus } from '../../types/order'
 
 export default function SellerOrdersPage() {
-  const [orders, setOrders] = useState(getSellerOrders)
+  const [orders, setOrders] = useState<SellerOrderDetails[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  function setStatus(id: number, status: OrderStatus) {
-    updateSellerOrderStatus(id, status)
-    setOrders(getSellerOrders())
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const data = await getSellerOrders()
+        if (!cancelled) setOrders(data)
+      } catch (err) {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Could not load orders.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function setStatus(id: number, status: OrderStatus) {
+    setSaving(true)
+    setError(null)
+    try {
+      await updateSellerOrderStatus(id, status)
+      setOrders(await getSellerOrders())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not update order.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  if (orders.length === 0) return <EmptyState message="No orders yet." />
-
+  if (loading) return <p role="status">Loading orders…</p>
   return (
     <div className="content-page">
       <h1>Orders</h1>
-      {orders.map((sellerOrder) => (
-        <div key={sellerOrder.id} className="card">
-          <h3>
-            Order part #{sellerOrder.id} <StatusBadge status={sellerOrder.status} />
-          </h3>
-          {sellerOrder.orderItems.map((item) => (
+      <ErrorMessage message={error} />
+      {!error && orders.length === 0 && (
+        <p>No orders yet. Unpaid orders are hidden by the backend.</p>
+      )}
+      {orders.map((order) => (
+        <div key={order.id} className="card">
+          <h2>
+            Order #{order.orderId} · Part #{order.id}{' '}
+            <StatusBadge status={order.status} />
+          </h2>
+          <p>
+            {order.customerName} · {order.customerEmail}
+          </p>
+          <p>
+            {order.shippingAddress.street}, {order.shippingAddress.city},{' '}
+            {order.shippingAddress.country} · {order.shippingAddress.phone}
+          </p>
+          {order.items.map((item) => (
             <p key={item.id}>
-              {item.quantity} x {item.productName}
+              {item.quantity} × {item.productName}
             </p>
           ))}
-          <Button
-            onClick={() => setStatus(sellerOrder.id, 'PROCESSING')}
-            disabled={sellerOrder.status !== 'PAID'}
-          >
-            Processing
-          </Button>
-          <Button
-            onClick={() => setStatus(sellerOrder.id, 'SHIPPED')}
-            disabled={sellerOrder.status !== 'PROCESSING'}
-          >
-            Shipped
-          </Button>
+          <p>Total: ${Number(order.subtotal).toFixed(2)}</p>
+          <div className="page-actions">
+            {order.status === 'PAID' && (
+              <button
+                className="btn"
+                disabled={saving}
+                onClick={() => setStatus(order.id, 'PROCESSING')}
+              >
+                Start processing
+              </button>
+            )}
+            {order.status === 'PROCESSING' && (
+              <button
+                className="btn"
+                disabled={saving}
+                onClick={() => setStatus(order.id, 'SHIPPED')}
+              >
+                Mark shipped
+              </button>
+            )}
+            {order.status === 'SHIPPED' && (
+              <button
+                className="btn"
+                disabled={saving}
+                onClick={() => setStatus(order.id, 'DELIVERED')}
+              >
+                Mark delivered
+              </button>
+            )}
+          </div>
         </div>
       ))}
     </div>

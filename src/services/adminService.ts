@@ -1,6 +1,22 @@
 import type { ProductPage, ProductResponse } from '../types/product'
 import { apiGet, apiPatch } from './api'
 import type { SellerApplication, SellerApplicationPage } from '../types/seller'
+import type { User } from '../types/user'
+
+export interface AdminUser extends User {
+  status: 'ACTIVE' | 'SUSPENDED'
+}
+
+export function getAdminUsers(page: number, role: string, status: string) {
+  let path = `/admin/users?page=${page}&size=20&sort=createdOn,desc`
+  if (role) path += `&role=${role}`
+  if (status) path += `&status=${status}`
+  return apiGet<{ content: AdminUser[]; totalPages: number }>(path)
+}
+
+export function updateUserStatus(id: number, action: 'activate' | 'suspend') {
+  return apiPatch<AdminUser>(`/admin/users/${id}/${action}`)
+}
 
 export function getSellerApplications(page: number) {
   return apiGet<SellerApplicationPage>(

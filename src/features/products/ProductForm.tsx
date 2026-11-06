@@ -30,6 +30,7 @@ export default function ProductForm({
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [categoryError, setCategoryError] = useState<string | null>(null)
+  const cannotSave = saving || loadingCategories || categories.length === 0
 
   useEffect(() => {
     let cancelled = false
@@ -49,34 +50,39 @@ export default function ProductForm({
     return () => { cancelled = true }
   }, [])
 
+  function validateProduct(product: ProductInput) {
+    if (!name.trim() || !description.trim())
+      throw new Error('Name and description are required.')
+    if (product.price < 0.01 || !Number.isFinite(product.price))
+      throw new Error('Enter a valid price greater than zero.')
+    if (!Number.isInteger(product.quantity) || product.quantity < 0)
+      throw new Error('Stock must be a whole number of zero or more.')
+    const selectedCategory = categories.find((category) => category.id === product.categoryId)
+    if (!selectedCategory)
+      throw new Error('Choose a category.')
+    if (requireImage && !image) throw new Error('Choose a product picture.')
+    if (image && !['image/jpeg', 'image/png', 'image/webp'].includes(image.type))
+      throw new Error('Choose a JPEG, PNG or WebP image.')
+    if (image && image.size > 5 * 1024 * 1024)
+      throw new Error('Choose an image smaller than 5 MB.')
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     setSaving(true)
+
+    const product: ProductInput = {
+      name,
+      description,
+      price: Number(price),
+      quantity: Number(quantity),
+      categoryId: Number(categoryId),
+    }
+
     try {
-      if (!name.trim() || !description.trim())
-        throw new Error('Name and description are required.')
-      if (Number(price) < 0.01 || !Number.isFinite(Number(price)))
-        throw new Error('Enter a valid price greater than zero.')
-      if (!Number.isInteger(Number(quantity)) || Number(quantity) < 0)
-        throw new Error('Stock must be a whole number of zero or more.')
-      if (!categories.some((category) => category.id === Number(categoryId)))
-        throw new Error('Choose a category.')
-      if (requireImage && !image) throw new Error('Choose a product picture.')
-      if (image && !['image/jpeg', 'image/png', 'image/webp'].includes(image.type))
-        throw new Error('Choose a JPEG, PNG or WebP image.')
-      if (image && image.size > 5 * 1024 * 1024)
-        throw new Error('Choose an image smaller than 5 MB.')
-      await onSubmit(
-        {
-          name,
-          description,
-          price: Number(price),
-          quantity: Number(quantity),
-          categoryId: Number(categoryId),
-        },
-        image,
-      )
+      validateProduct(product)
+      await onSubmit(product, image)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save product.')
     } finally {
@@ -130,7 +136,7 @@ export default function ProductForm({
         </div>
       )}
       <ErrorMessage message={error} />
-      <button type="submit" className="btn-primary" disabled={saving || loadingCategories || categories.length === 0}>
+      <button type="submit" className="btn-primary" disabled={cannotSave}>
         {saving ? 'Saving…' : submitText}
       </button>
     </form>

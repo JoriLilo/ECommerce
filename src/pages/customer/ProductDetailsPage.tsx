@@ -18,6 +18,7 @@ export default function ProductDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [message, setMessage] = useState('')
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -53,7 +54,7 @@ export default function ProductDetailsPage() {
   if (!product || product.productStatus !== 'APPROVED')
     return <EmptyState message="Product not found." />
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!product) {
       return
     }
@@ -61,12 +62,21 @@ export default function ProductDetailsPage() {
       navigate('/login')
       return
     }
+    if (getUser()?.role !== 'CUSTOMER') {
+      setError('Please use a customer account to shop.')
+      return
+    }
+    if (adding) return
+    setAdding(true)
+    setMessage('')
     setError(null)
     try {
-      addToCart(product, quantity)
+      await addToCart(product, quantity)
       setMessage('Added to cart')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not add product.')
+    } finally {
+      setAdding(false)
     }
   }
 
@@ -97,7 +107,9 @@ export default function ProductDetailsPage() {
                 max={product.quantity}
                 onChange={setQuantity}
               />
-              <Button onClick={handleAdd}>Add to cart</Button>
+              <Button onClick={handleAdd} disabled={adding}>
+                {adding ? 'Adding…' : 'Add to cart'}
+              </Button>
             </>
           )}
           <ErrorMessage message={error} />

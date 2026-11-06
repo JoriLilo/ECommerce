@@ -1,5 +1,4 @@
 import type { Address } from './address'
-import type { User } from './user'
 
 export type OrderStatus =
   | 'PENDING_PAYMENT'
@@ -14,31 +13,39 @@ export interface OrderItem {
   id: number
   productId: number
   productName: string
-  productImage: string
+  unitPrice: number
   quantity: number
-  price: number
-  createdAt: string
-  updatedAt: string
+  lineTotal: number
 }
 
 export interface SellerOrder {
   id: number
   sellerId: number
-  storeName: string
   status: OrderStatus
-  totalPrice: number
-  orderItems: OrderItem[]
-  createdAt: string
-  updatedAt: string
+  subtotal: number
+  items: OrderItem[]
 }
 
-export interface Order {
+export interface OrderSummary {
   id: number
-  customer: User // import type { User } from './user'
-  shippingAddress: Address
   status: OrderStatus
   totalAmount: number
+  createdOn: string
+}
+
+export interface Order extends OrderSummary {
+  shippingAddress: Omit<Address, 'id' | 'defaultAddress'>
   sellerOrders: SellerOrder[]
-  createdAt: string
-  updatedAt: string
+}
+
+export interface SellerOrderDetails {
+  id: number
+  orderId: number
+  status: OrderStatus
+  subtotal: number
+  customerName: string
+  customerEmail: string
+  shippingAddress: Omit<Address, 'id' | 'defaultAddress'>
+  items: OrderItem[]
+  createdOn: string
 }

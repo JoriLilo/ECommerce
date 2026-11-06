@@ -1,4 +1,7 @@
 import AdminProductsPage from './pages/admin/AdminProductsPage'
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage'
+import AdminUsersPage from './pages/admin/AdminUsersPage'
+import AddressesPage from './pages/customer/AddressesPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import LoginPage from './pages/auth/LoginPage'
@@ -40,11 +43,35 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route
+            path="/addresses"
+            element={
+              <ProtectedRoute>
+                <AddressesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminCategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/cart"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CartPage />
               </ProtectedRoute>
             }
@@ -52,7 +79,7 @@ function App() {
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CheckoutPage />
               </ProtectedRoute>
             }
@@ -60,7 +87,7 @@ function App() {
           <Route
             path="/payment-result"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <PaymentResultPage />
               </ProtectedRoute>
             }
@@ -84,7 +111,7 @@ function App() {
           <Route
             path="/orders"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CustomerOrdersPage />
               </ProtectedRoute>
             }
@@ -92,7 +119,7 @@ function App() {
           <Route
             path="/orders/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CustomerOrderDetailsPage />
               </ProtectedRoute>
             }

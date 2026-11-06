@@ -44,12 +44,12 @@ export default function AdminProductsPage() {
     }
   }, [page, status, refreshCount])
 
-  async function decide(id: number, approve: boolean) {
+  async function handleDecision(id: number, action: 'approve' | 'reject') {
     setSavingId(id)
     setError(null)
     setMessage('')
     try {
-      if (approve) {
+      if (action === 'approve') {
         await approveProduct(id)
         setMessage('Product approved. It can now appear in the shop.')
       } else {
@@ -128,14 +128,14 @@ export default function AdminProductsPage() {
                 <button
                   className="btn btn-primary"
                   disabled={savingId !== null || product.status === 'APPROVED'}
-                  onClick={() => decide(product.id, true)}
+                  onClick={() => handleDecision(product.id, 'approve')}
                 >
                   Approve
                 </button>
                 <button
                   className="btn btn-danger"
                   disabled={savingId !== null || product.status === 'REJECTED'}
-                  onClick={() => decide(product.id, false)}
+                  onClick={() => handleDecision(product.id, 'reject')}
                 >
                   Reject
                 </button>

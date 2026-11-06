@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Product } from '../../types/product'
+import type { SellerOrderDetails } from '../../types/order'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import { Link } from 'react-router-dom'
 import { getMyProducts } from '../../services/productService'
@@ -8,6 +9,7 @@ import { getUser } from '../../utils/auth'
 
 export default function SellerDashboardPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [orders, setOrders] = useState<SellerOrderDetails[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   useEffect(() => {
@@ -16,6 +18,8 @@ export default function SellerDashboardPage() {
       try {
         const result = await getMyProducts()
         if (!cancelled) setProducts(result)
+        const sellerOrders = await getSellerOrders()
+        if (!cancelled) setOrders(sellerOrders)
       } catch (error) {
         if (!cancelled)
           setError(error instanceof Error ? error.message : 'Could not load products.')
@@ -28,7 +32,6 @@ export default function SellerDashboardPage() {
       cancelled = true
     }
   }, [])
-  const orders = getSellerOrders()
   const activeOrders = orders.filter(
     (order) => order.status === 'PAID' || order.status === 'PROCESSING',
   )
@@ -38,7 +41,7 @@ export default function SellerDashboardPage() {
       <h1>Seller Dashboard</h1>
       <p>Welcome, {getUser()?.fullName}. Manage your products and orders here.</p>
       <p className="seller-note">
-        Products are saved on the server. Orders still use demo data in this browser.
+        Products and orders are loaded from the server. Unpaid orders are not shown.
       </p>
       <ErrorMessage message={error} />
       {loading && <p role="status">Loading products…</p>}
