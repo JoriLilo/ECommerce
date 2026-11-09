@@ -1,3 +1,5 @@
+import AdminLayout from './components/layout/AdminLayout'
+import AccountLayout from './components/layout/AccountLayout'
 import MyStorePage from './pages/seller/MyStorePage'
 import SellerProfilePage from './pages/seller/SellerProfilePage'
 import StorePage from './pages/customer/StorePage'
@@ -50,46 +52,11 @@ function App() {
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path="/stores/:id" element={<StorePage />} />
-          <Route
-            path="/admin/orders"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminOrdersPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/orders/:id"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminOrderDetailsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/addresses"
-            element={
-              <ProtectedRoute>
-                <AddressesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/categories"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminCategoriesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminUsersPage />
-              </ProtectedRoute>
-            }
-          />
+
+
+
+
+
 
           <Route
             path="/cart"
@@ -111,42 +78,14 @@ function App() {
             path="/payment-result"
             element={
              
-                <CheckoutPage />
+                <PaymentResultPage />
               
             }
           />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders"
-           element={
-             
-                <CheckoutPage />
-              
-            }
-          />
-          <Route
-            path="/orders/:id"
-            element={
-             
-                <CheckoutPage />
-              
-            }
-          />
+
+
+
+
 
           <Route
             path="/seller/application-status"
@@ -172,22 +111,39 @@ function App() {
             <Route path="/seller/orders" element={<SellerOrdersPage />} />
           </Route>
 
+
+
+          {/* Account pages share a sidebar and require a signed-in user of any role. */}
           <Route
-            path="/admin/seller-applications"
             element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminSellerApplicationsPage />
+              <ProtectedRoute>
+                <AccountLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/addresses" element={<AddressesPage />} />
+            <Route path="/orders" element={<CustomerOrdersPage />} />
+            <Route path="/orders/:id" element={<CustomerOrderDetailsPage />} />
+          </Route>
+
+          {/* Every admin page shares this layout and the ADMIN role check. */}
           <Route
-            path="/admin/products"
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminProductsPage />
+                <AdminLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/products" element={<AdminProductsPage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetailsPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+            <Route path="/admin/seller-applications" element={<AdminSellerApplicationsPage />} />
+          </Route>
+
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

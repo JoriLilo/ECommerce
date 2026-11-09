@@ -88,3 +88,7 @@
 .seller-panel + .seller-panel {
   margin-top: 20px;
 }
+
+.seller-actions .btn-primary {
+  color: var(--bg);
+}

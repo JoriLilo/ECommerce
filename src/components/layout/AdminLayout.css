@@ -1,0 +1,115 @@
+/* Persistent left navigation and a flexible admin content column. */
+.admin-workspace {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  color: var(--text);
+}
+.admin-sidebar {
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--muted);
+  border-radius: 16px;
+  padding: 24px 18px;
+}
+.admin-sidebar-heading {
+  padding: 0 10px 20px;
+  border-bottom: 1px solid var(--muted);
+}
+.admin-sidebar-heading h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.admin-sidebar-heading p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 20px 0;
+}
+.admin-sidebar-nav a {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+.admin-sidebar-nav a:hover {
+  background: var(--bg);
+}
+.admin-sidebar-nav a.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+}
+.admin-sidebar-account {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 10px 0;
+  border-top: 1px solid var(--muted);
+}
+.admin-sidebar-account p {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.admin-sidebar-account a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.admin-sidebar-account a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.admin-sidebar-account button {
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.admin-sidebar-account button:hover {
+  background: var(--bg);
+}
+.admin-sidebar a:focus-visible,
+.admin-sidebar button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.admin-workspace-content {
+  min-width: 0;
+}
+/* Keep existing admin page styles within the available content column. */
+.admin-workspace-content > .content-page {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.admin-workspace-content .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 800px) {
+  .admin-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 20px 16px;
+  }
+  .admin-sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
