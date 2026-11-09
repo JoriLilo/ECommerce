@@ -66,10 +66,6 @@ export default function ProductDetailsPage() {
       navigate('/login')
       return
     }
-    if (getUser()?.role !== 'CUSTOMER') {
-      setError('Please use a customer account to shop.')
-      return
-    }
     if (adding) return
     setAdding(true)
     setMessage('')

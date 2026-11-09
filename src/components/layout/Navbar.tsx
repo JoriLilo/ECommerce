@@ -70,7 +70,7 @@ export default function Navbar() {
       </form>
 
       <div className="navbar-right">
-        {(!user || user.role === 'CUSTOMER') && (
+        {(!user || user.role === 'CUSTOMER' || user.role === 'SELLER' || user.role === 'ADMIN') && (
           <Link to="/cart" className="nav-link cart-link">
             <svg
               viewBox="0 0 24 24"

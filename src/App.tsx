@@ -94,25 +94,25 @@ function App() {
           <Route
             path="/cart"
             element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+             
                 <CartPage />
-              </ProtectedRoute>
+             
             }
           />
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+             
                 <CheckoutPage />
-              </ProtectedRoute>
+              
             }
           />
           <Route
             path="/payment-result"
             element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <PaymentResultPage />
-              </ProtectedRoute>
+             
+                <CheckoutPage />
+              
             }
           />
           <Route
@@ -133,18 +133,18 @@ function App() {
           />
           <Route
             path="/orders"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <CustomerOrdersPage />
-              </ProtectedRoute>
+           element={
+             
+                <CheckoutPage />
+              
             }
           />
           <Route
             path="/orders/:id"
             element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <CustomerOrderDetailsPage />
-              </ProtectedRoute>
+             
+                <CheckoutPage />
+              
             }
           />
 

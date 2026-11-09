@@ -16,12 +16,7 @@ export default function useCart() {
 
     async function loadCart() {
       // TODO: Support shopping for admins and sellers too.
-      // Sellers must be prevented from buying their own products.
-      if (user?.role !== 'CUSTOMER') {
-        setItems([])
-        setLoading(false)
-        return
-      }
+  
 
       setLoading(true)
       setError(null)
