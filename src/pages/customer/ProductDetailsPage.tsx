@@ -10,6 +10,7 @@ import Button from '../../components/ui/Button'
 import QuantityInput from '../../components/ui/QuantityInput'
 import type { Product } from '../../types/product'
 
+// Loads one product and lets a customer choose a quantity to add to the cart.
 export default function ProductDetailsPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -20,7 +21,9 @@ export default function ProductDetailsPage() {
   const [message, setMessage] = useState('')
   const [adding, setAdding] = useState(false)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadProduct() {
       setLoading(true)
@@ -54,6 +57,7 @@ export default function ProductDetailsPage() {
   if (!product || product.productStatus !== 'APPROVED')
     return <EmptyState message="Product not found." />
 
+  // Checks the current customer restriction and sends the selected quantity to the cart.
   async function handleAdd() {
     if (!product) {
       return

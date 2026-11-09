@@ -11,6 +11,7 @@ const emptyAddress: AddressInput = {
   phone: '', street: '', city: '', country: '', postalCode: '', defaultAddress: false,
 }
 
+// Lists saved addresses and provides a form for adding or editing them.
 export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [form, setForm] = useState<AddressInput>(emptyAddress)
@@ -19,7 +20,9 @@ export default function AddressesPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       try {
@@ -35,11 +38,13 @@ export default function AddressesPage() {
     return () => { cancelled = true }
   }, [])
 
+  // Clears the form values and exits editing mode.
   function resetForm() {
     setForm(emptyAddress)
     setEditingId(null)
   }
 
+  // Creates or updates the address, resets the form, and reloads the list.
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)
@@ -56,12 +61,14 @@ export default function AddressesPage() {
     }
   }
 
+  // Copies the selected address into the form for editing.
   function edit(address: Address) {
     setEditingId(address.id)
     setForm({ phone: address.phone, street: address.street, city: address.city,
       country: address.country, postalCode: address.postalCode, defaultAddress: address.defaultAddress })
   }
 
+  // Requests deletion and refreshes the displayed list.
   async function remove(id: number) {
     if (!window.confirm('Delete this address?')) return
     setSaving(true)

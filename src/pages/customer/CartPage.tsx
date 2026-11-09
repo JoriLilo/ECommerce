@@ -5,11 +5,13 @@ import { updateQuantity, removeFromCart, cartTotal } from '../../services/cartSe
 import ErrorMessage from '../../components/common/ErrorMessage'
 import QuantityInput from '../../components/ui/QuantityInput'
 
+// Displays cart entries and handles quantity changes or removal.
 export default function CartPage() {
   const { items, loading, error } = useCart()
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  // Removes the entry when quantity is put to 0 otherwise updates its quantity.
   async function changeItem(id: number, quantity?: number) {
     setSaving(true)
     setSaveError(null)

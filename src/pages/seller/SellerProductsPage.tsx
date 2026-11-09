@@ -8,6 +8,7 @@ import StatusBadge from '../../components/common/StatusBadge'
 import type { Product } from '../../types/product'
 import Button from '../../components/ui/Button'
 
+// Lists the seller's products with search and deletion controls.
 export default function SellerProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
@@ -17,8 +18,11 @@ export default function SellerProductsPage() {
   const [refreshCount, setRefreshCount] = useState(0)
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
+    // Loads all product pages and converts each response for display.
     async function loadProducts() {
       setLoading(true)
       setError(null)
@@ -38,6 +42,7 @@ export default function SellerProductsPage() {
     }
   }, [refreshCount])
 
+  // Requests product deletion and triggers a reload of the list.
   async function handleDelete(id: number) {
     if (!window.confirm('Delete this product?')) return
     setError(null)

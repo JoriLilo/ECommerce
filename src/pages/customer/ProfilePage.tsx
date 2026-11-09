@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { getUser } from '../../utils/auth'
 
+// Displays account details from the locally saved user.
 export default function ProfilePage() {
   const user = getUser()
   return (

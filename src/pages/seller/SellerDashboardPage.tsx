@@ -7,13 +7,17 @@ import { getMyProducts } from '../../services/productService'
 import { getSellerOrders } from '../../services/orderService'
 import { getUser } from '../../utils/auth'
 
+// Loads the seller's products and orders for the dashboard.
 export default function SellerDashboardPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [orders, setOrders] = useState<SellerOrderDetails[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
+    // Loads all product pages and converts each response for display.
     async function loadProducts() {
       try {
         const result = await getMyProducts()

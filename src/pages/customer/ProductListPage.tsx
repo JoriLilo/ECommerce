@@ -8,6 +8,7 @@ import ErrorMessage from '../../components/common/ErrorMessage'
 import type { Product } from '../../types/product'
 import './ProductListPage.css'
 
+// Displays catalog products with filters and sorting stored in the URL.
 export default function ProductListPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,8 +25,11 @@ export default function ProductListPage() {
   const invalidPrice =
     minPrice !== '' && maxPrice !== '' && Number(minPrice) > Number(maxPrice)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
+    // Loads all product pages and converts each response for display.
     async function loadProducts() {
       try {
         const loadedProducts = await getProducts()
@@ -48,6 +52,7 @@ export default function ProductListPage() {
     }
   }, [])
 
+  // Updates or removes one URL filter while preserving the others.
   function changeFilter(name: string, value: string) {
     const next = new URLSearchParams(params)
     if (value) next.set(name, value)
@@ -55,6 +60,7 @@ export default function ProductListPage() {
     setParams(next, { replace: true })
   }
 
+  // Clears the filters while keeping the current search text.
   function clearFilters() {
     const next = new URLSearchParams()
     if (search) next.set('search', search)

@@ -1,5 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
 
+// Describes the values and callbacks accepted by this component.
 interface AuthLayoutProps {
   topText: string
   title: ReactNode
@@ -9,6 +10,7 @@ interface AuthLayoutProps {
   children: ReactNode
 }
 
+// Provides the shared form layout for login and registration.
 export default function AuthLayout({
   topText,
   title,

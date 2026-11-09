@@ -9,12 +9,14 @@ import FormField from '../../components/common/FormField'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import SubmitButton from '../../components/ui/SubmitButton'
 
+// Signs in the user and redirects according to their role or saved seller draft.
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // Sends the credentials, saves the session, and opens the appropriate page.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setLoading(true)

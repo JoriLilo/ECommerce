@@ -4,6 +4,7 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getUser, logout } from '../../utils/auth'
 
+// Displays navigation, product search, and the total cart quantity.
 export default function Navbar() {
   const { items } = useCart()
   let cartCount = 0
@@ -14,6 +15,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
 
+  // Trims the search text and navigates to the product results URL.
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const search = String(new FormData(event.currentTarget).get('search') ?? '').trim()
@@ -23,6 +25,7 @@ export default function Navbar() {
   }
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // Clears the saved session and opens the login page.
   function handleLogout() {
     logout()
     window.location.href = '/login'

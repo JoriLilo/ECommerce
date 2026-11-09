@@ -9,6 +9,7 @@ import type { ProductResponse } from '../../types/product'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 
+// Lists products for moderation and handles approval or rejection.
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductResponse[]>([])
   const [status, setStatus] = useState('PENDING')
@@ -20,8 +21,11 @@ export default function AdminProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
+    // Loads all product pages and converts each response for display.
     async function loadProducts() {
       setLoading(true)
       setError(null)
@@ -44,6 +48,7 @@ export default function AdminProductsPage() {
     }
   }, [page, status, refreshCount])
 
+  // Sends the moderation decision and triggers a reload of the product list.
   async function handleDecision(id: number, action: 'approve' | 'reject') {
     setSavingId(id)
     setError(null)

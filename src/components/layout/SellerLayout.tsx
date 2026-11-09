@@ -3,10 +3,13 @@ import { getSellerProfile } from '../../services/sellerService'
 import { Navigate, NavLink, Outlet } from 'react-router-dom'
 import './SellerLayout.css'
 
+// Checks seller approval before displaying seller navigation and child pages.
 export default function SellerLayout() {
   const [approved, setApproved] = useState<boolean | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function checkApproval() {
       try {

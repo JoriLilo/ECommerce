@@ -4,13 +4,16 @@ import type { OrderStatus, SellerOrderDetails } from '../../types/order'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 
+// Lists the seller's orders and handles status updates.
 export default function SellerOrdersPage() {
   const [orders, setOrders] = useState<SellerOrderDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       try {
@@ -29,6 +32,7 @@ export default function SellerOrdersPage() {
     }
   }, [])
 
+  // Saves the selected seller order status and updates the displayed list.
   async function setStatus(id: number, status: OrderStatus) {
     setSaving(true)
     setError(null)

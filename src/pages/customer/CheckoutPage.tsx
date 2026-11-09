@@ -8,6 +8,7 @@ import { createOrder } from '../../services/orderService'
 import type { Address } from '../../types/address'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Loads delivery addresses and creates an order from the cart.
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { items, loading, error: cartError } = useCart()
@@ -17,7 +18,9 @@ export default function CheckoutPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadAddresses() {
       try {
@@ -40,6 +43,7 @@ export default function CheckoutPage() {
     }
   }, [])
 
+  // Creates the order with the selected address, announces the cart change, and opens the result page.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (saving || !addressId) return

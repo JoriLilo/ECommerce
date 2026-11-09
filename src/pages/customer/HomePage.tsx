@@ -6,12 +6,16 @@ import ErrorMessage from '../../components/common/ErrorMessage'
 import './HomePage.css'
 import { Link } from 'react-router-dom'
 
+// Loads catalog products for the home page.
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
+    // Loads all product pages and converts each response for display.
     async function loadProducts() {
       try {
         const result = await getProducts()

@@ -1,9 +1,11 @@
+// Describes the values and callbacks accepted by this component.
 interface SearchInputProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
 }
 
+// Displays a controlled search field and sends changes to its parent.
 export default function SearchInput({
   value,
   onChange,

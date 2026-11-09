@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 
+// Describes the values and callbacks accepted by this component.
 interface FormFieldProps {
   label: string
   type?: string
@@ -8,6 +9,7 @@ interface FormFieldProps {
   onChange: (value: string) => void
 }
 
+// Connects a label to its input and supports showing or hiding a password.
 export default function FormField({
   label,
   type = 'text',

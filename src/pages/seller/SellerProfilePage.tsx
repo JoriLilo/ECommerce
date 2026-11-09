@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { getSellerProfile, updateSellerProfile } from '../../services/sellerService'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Loads and updates the seller's business information.
 export default function SellerProfilePage() {
   const [nipt, setNipt] = useState('')
   const [phone, setPhone] = useState('')
@@ -13,7 +14,9 @@ export default function SellerProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       try {
@@ -37,6 +40,7 @@ export default function SellerProfilePage() {
     }
   }, [])
 
+  // Sends the edited business details and reports the result.
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)

@@ -7,6 +7,7 @@ import type { Product } from '../../types/product'
 import ProductCard from '../../features/products/ProductCard'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Loads a public store and its products.
 export default function StorePage() {
   const { id } = useParams()
   const [store, setStore] = useState<Store | null>(null)
@@ -14,7 +15,9 @@ export default function StorePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       setLoading(true)

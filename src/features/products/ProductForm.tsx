@@ -6,6 +6,7 @@ import type { ProductInput } from '../../services/productService'
 import { getCategories } from '../../services/categoryService'
 import type { Category } from '../../types/category'
 
+// Describes the values and callbacks accepted by this component.
 interface ProductFormProps {
   initial?: ProductInput
   requireImage?: boolean
@@ -13,6 +14,7 @@ interface ProductFormProps {
   onSubmit: (data: ProductInput, image: File | null) => Promise<void>
 }
 
+// Collects product details, loads categories, and validates before calling onSubmit.
 export default function ProductForm({
   initial,
   requireImage = false,
@@ -32,7 +34,9 @@ export default function ProductForm({
   const [categoryError, setCategoryError] = useState<string | null>(null)
   const cannotSave = saving || loadingCategories || categories.length === 0
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadCategories() {
       try {
@@ -50,6 +54,7 @@ export default function ProductForm({
     return () => { cancelled = true }
   }, [])
 
+  // Checks the product values and selected category before submission.
   function validateProduct(product: ProductInput) {
     if (!name.trim() || !description.trim())
       throw new Error('Name and description are required.')
@@ -67,6 +72,7 @@ export default function ProductForm({
       throw new Error('Choose an image smaller than 5 MB.')
   }
 
+  // Converts form values, validates them, and waits for the parent save operation.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)

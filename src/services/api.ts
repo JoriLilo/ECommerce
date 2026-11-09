@@ -3,6 +3,7 @@ import { getToken } from '../utils/auth'
 const BASE_URL = '/api'
 
 
+// Reads backend validation errors, then falls back to a message for the HTTP status.
 async function getErrorMessage(response: Response): Promise<string> {
   const text = await response.text()
 
@@ -62,22 +63,27 @@ async function request<T>(path: string, method: string, body?: unknown): Promise
   return JSON.parse(text) as T
 }
 
+// Sends a GET request and returns the expected response type.
 export function apiGet<T>(path: string): Promise<T> {
   return request<T>(path, 'GET')
 }
 
+// Sends data in a POST request and returns the response.
 export function apiPost<T>(path: string, body: unknown): Promise<T> {
   return request<T>(path, 'POST', body)
 }
 
+// Sends a PATCH request, with a body when one is provided.
 export function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   return request<T>(path, 'PATCH', body)
 }
 
+// Sends replacement data in a PUT request.
 export function apiPut<T>(path: string, body: unknown): Promise<T> {
   return request<T>(path, 'PUT', body)
 }
 
+// Sends a DELETE request without returning response data.
 export function apiDelete(path: string): Promise<void> {
   return request<void>(path, 'DELETE')
 }

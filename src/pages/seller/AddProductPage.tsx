@@ -8,10 +8,12 @@ import {
   uploadProductImage,
 } from '../../services/productService'
 
+// Creates a product and uploads its required image before returning to the list.
 export default function AddProductPage() {
   const navigate = useNavigate()
   const [productId, setProductId] = useState<number | null>(null)
 
+  // Saves the product details before handling any separate image upload.
   async function handleSave(data: ProductInput, image: File | null) {
     if (!image) throw new Error('Choose a product picture.')
     let savedId = productId

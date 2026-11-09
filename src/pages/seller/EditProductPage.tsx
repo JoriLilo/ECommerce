@@ -12,6 +12,7 @@ import type { Product } from '../../types/product'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 
+// Loads the seller's product and handles detail and image changes.
 export default function EditProductPage() {
   const { id } = useParams()
   const location = useLocation()
@@ -22,7 +23,9 @@ export default function EditProductPage() {
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadProduct() {
       setLoading(true)
@@ -44,12 +47,14 @@ export default function EditProductPage() {
     }
   }, [id])
 
+  // Saves the edited product details and updates the page state.
   async function handleSave(data: ProductInput) {
     const result = await updateProduct(Number(id), data)
     setProduct(result)
     setMessage('Product details saved.')
   }
 
+  // Uploads the selected image and refreshes the product details.
   async function handleUpload() {
     if (!file) return
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
@@ -80,6 +85,7 @@ export default function EditProductPage() {
     }
   }
 
+  // Deletes the selected image and refreshes the product details.
   async function handleDeleteImage(imageId: number) {
     if (!window.confirm('Delete this product image?')) return
     setUploading(true)

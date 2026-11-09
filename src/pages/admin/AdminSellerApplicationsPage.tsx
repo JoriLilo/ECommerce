@@ -12,6 +12,7 @@ import EmptyState from '../../components/common/EmptyState'
 import StatusBadge from '../../components/common/StatusBadge'
 import type { SellerApplication } from '../../types/seller'
 
+// Displays seller applications and handles review and account status changes.
 export default function AdminSellerApplicationsPage() {
   const [applications, setApplications] = useState<SellerApplication[]>([])
   const [page, setPage] = useState(0)
@@ -24,7 +25,9 @@ export default function AdminSellerApplicationsPage() {
   const [rejectingId, setRejectingId] = useState<number | null>(null)
   const [reason, setReason] = useState('')
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadApplications() {
       try {
@@ -52,6 +55,7 @@ export default function AdminSellerApplicationsPage() {
     }
   }, [page, refreshCount])
 
+  // Switches the selected seller between active and suspended states.
   async function changeSellerStatus(application: SellerApplication) {
     const action = application.status === 'APPROVED' ? 'suspend' : 'activate'
     if (
@@ -74,6 +78,7 @@ export default function AdminSellerApplicationsPage() {
     }
   }
 
+  // Changes the application page and resets its loading and error state.
   function loadPage(nextPage: number) {
     setLoading(true)
     setError(null)
@@ -83,6 +88,7 @@ export default function AdminSellerApplicationsPage() {
     setRefreshCount(refreshCount + 1)
   }
 
+  // Approves or rejects the application and refreshes the list.
   async function decide(id: number, approve: boolean) {
     if (!approve && !reason.trim()) {
       setError('Enter a reason before rejecting this application.')

@@ -5,6 +5,7 @@ import { createStore, getMyStore, updateStore } from '../../services/storeServic
 import type { Store } from '../../types/seller'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Loads the seller's store and offers creation or editing through one form.
 export default function MyStorePage() {
   const [store, setStore] = useState<Store | null>(null)
   const [name, setName] = useState('')
@@ -15,7 +16,9 @@ export default function MyStorePage() {
   const [message, setMessage] = useState('')
   const [loaded, setLoaded] = useState(false)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       try {
@@ -39,6 +42,7 @@ export default function MyStorePage() {
     }
   }, [])
 
+  // Creates a store when none exists, or updates the existing store.
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)

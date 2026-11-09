@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+// Displays links to the admin management pages.
 export default function AdminDashboardPage() {
   return (
     <section className="content-page">

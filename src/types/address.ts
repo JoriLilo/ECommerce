@@ -1,3 +1,4 @@
+// Describes a saved delivery address and its default-address flag.
 export interface Address {
   id: number
   phone: string

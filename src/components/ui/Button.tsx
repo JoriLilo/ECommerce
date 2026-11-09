@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+// Describes the values and callbacks accepted by this component.
 interface ButtonProps {
   children: ReactNode
   onClick: () => void
@@ -7,6 +8,7 @@ interface ButtonProps {
   variant?: 'primary' | 'danger'
 }
 
+// Displays a reusable action button with a style variant and disabled state.
 export default function Button({
   children,
   onClick,

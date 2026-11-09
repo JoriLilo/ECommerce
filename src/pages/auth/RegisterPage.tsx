@@ -13,6 +13,7 @@ import FormField from '../../components/common/FormField'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import SubmitButton from '../../components/ui/SubmitButton'
 
+// Creates an account and submits business details when seller registration is selected.
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -26,6 +27,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // Validates the password, registers the account, and handles the optional seller application.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 

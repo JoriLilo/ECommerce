@@ -5,6 +5,7 @@ import type { OrderSummary } from '../../types/order'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 
+// Displays paginated orders with a status filter.
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderSummary[]>([])
   const [status, setStatus] = useState('')
@@ -13,7 +14,9 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       setLoading(true)

@@ -1,3 +1,4 @@
+/* Styles the home page hero and product sections. */
 .home-hero {
   margin: 0 auto;
   padding: 48px max(24px, calc((100vw - 1100px) / 2));

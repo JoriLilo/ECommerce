@@ -4,6 +4,7 @@ import { getAdminUsers, updateUserStatus } from '../../services/adminService'
 import type { AdminUser } from '../../services/adminService'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Lists users with role and status filters and supports account status changes.
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [role, setRole] = useState('')
@@ -15,7 +16,9 @@ export default function AdminUsersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       setLoading(true)
@@ -33,6 +36,7 @@ export default function AdminUsersPage() {
     return () => { cancelled = true }
   }, [page, role, status, refreshCount])
 
+  // Switches the selected user between active and suspended states.
   async function changeStatus(user: AdminUser) {
     const action = user.status === 'ACTIVE' ? 'suspend' : 'activate'
     if (!window.confirm(`${action === 'suspend' ? 'Suspend' : 'Activate'} ${user.email}?`)) return

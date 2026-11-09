@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import type { Product } from '../../types/product'
 
+// Describes the values and callbacks accepted by this component.
 interface ProductCardProps {
   product: Product
 }
 
+// Displays a linked product preview using its first image when available.
 export default function ProductCard({ product }: ProductCardProps) {
   const [firstImage] = product.images
 

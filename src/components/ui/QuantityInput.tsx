@@ -1,9 +1,11 @@
+// Describes the values and callbacks accepted by this component.
 interface QuantityInputProps {
   value: number
   max?: number
   onChange: (value: number) => void
 }
 
+// Sends increment and decrement changes to the parent; buttons stop at one and the optional maximum.
 export default function QuantityInput({ value, max, onChange }: QuantityInputProps) {
   return (
     <div className="quantity" role="group" aria-label="Quantity">

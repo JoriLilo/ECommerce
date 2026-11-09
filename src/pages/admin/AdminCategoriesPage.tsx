@@ -5,6 +5,7 @@ import { getCategories, createCategory, updateCategory, deleteCategory } from '.
 import type { Category } from '../../types/category'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
+// Lists categories and handles creating, editing, and deleting them.
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [name, setName] = useState('')
@@ -13,7 +14,9 @@ export default function AdminCategoriesPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       try {
@@ -29,11 +32,13 @@ export default function AdminCategoriesPage() {
     return () => { cancelled = true }
   }, [])
 
+  // Clears the form values and exits editing mode.
   function resetForm() {
     setName('')
     setEditingId(null)
   }
 
+  // Creates or updates the category, then refreshes the list.
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)
@@ -51,6 +56,7 @@ export default function AdminCategoriesPage() {
     }
   }
 
+  // Requests deletion and refreshes the displayed list.
   async function remove(category: Category) {
     if (!window.confirm(`Delete category "${category.name}"?`)) return
     setSaving(true)

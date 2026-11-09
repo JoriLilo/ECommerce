@@ -12,12 +12,14 @@ import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 import '../../components/layout/SellerLayout.css'
 
+// Shows the seller application status and supports retrying a saved draft.
 export default function SellerApplicationStatusPage() {
   const [profile, setProfile] = useState<SellerProfile | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState(getSellerDraft)
 
+  // Refreshes the application status and clears the local draft after success.
   async function checkStatus() {
     setLoading(true)
     setError(null)
@@ -36,7 +38,9 @@ export default function SellerApplicationStatusPage() {
     }
   }
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function loadProfile() {
       try {
@@ -64,6 +68,7 @@ export default function SellerApplicationStatusPage() {
     }
   }, [])
 
+  // Retries submission using the locally saved application details.
   async function submitApplication() {
     if (!draft) return
     setLoading(true)

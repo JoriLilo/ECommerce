@@ -5,6 +5,7 @@ import type { Order } from '../../types/order'
 import ErrorMessage from '../../components/common/ErrorMessage'
 import StatusBadge from '../../components/common/StatusBadge'
 
+// Shows an order's details and offers cancellation when allowed by the page.
 export default function CustomerOrderDetailsPage() {
   const { id } = useParams()
   const [order, setOrder] = useState<Order | null>(null)
@@ -12,7 +13,9 @@ export default function CustomerOrderDetailsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Loads data for this view when the effect dependencies change.
   useEffect(() => {
+    // Cleanup marks this effect as cancelled so pending results do not update its state.
     let cancelled = false
     async function load() {
       setLoading(true)
@@ -34,6 +37,7 @@ export default function CustomerOrderDetailsPage() {
     }
   }, [id])
 
+  // Requests order cancellation and updates the displayed order.
   async function handleCancel() {
     if (!order || !window.confirm('Cancel this unpaid order?')) return
     setSaving(true)

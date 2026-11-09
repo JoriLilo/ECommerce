@@ -37,6 +37,7 @@ import SellerOrdersPage from './pages/seller/SellerOrdersPage'
 
 import AdminSellerApplicationsPage from './pages/admin/AdminSellerApplicationsPage'
 
+// Defines the page routes, shared layouts, and role restrictions.
 function App() {
   return (
     <BrowserRouter>
