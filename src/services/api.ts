@@ -2,10 +2,20 @@ import { getToken } from '../utils/auth'
 
 const BASE_URL = '/api'
 
+function getFallbackMessage(status: number): string {
+  if(status >= 400 && status < 500) {
+    return 'There was a problem with your request.'
+  }
+  if(status >= 500 && status < 600) {
+    return 'The server encountered an error. Please try again later.'
+  }
+  return 'An unexpected error occurred.'
+
+}
 
 // Reads backend validation errors, then falls back to a message for the HTTP status.
 async function getErrorMessage(response: Response): Promise<string> {
-  const text = await response.text()
+  const text = await response.text() //reads respopnse body as text.
 
   if (text.trim() === 'Invalid CORS request') {
     return 'The backend does not allow this frontend address. Check the backend CORS settings.'
@@ -20,12 +30,18 @@ async function getErrorMessage(response: Response): Promise<string> {
 
   }
 
-  if (response.status === 401) return 'Please sign in again.'
-  if (response.status === 403) return 'You do not have permission to do this.'
-  return `Request failed: ${response.status}`
+  if (response.status === 401) {
+    return 'Please sign in again.'
+  }
+  if (response.status === 403){return 'You do not have permission to do this.'
+
+  }
+    return getFallbackMessage(response.status)
+  
+  
 }
 
-// T is the response type, similar to a generic type in Java.
+// T is the response type (similar to a generic type in Java).
 async function request<T>(path: string, method: string, body?: unknown): Promise<T> {
   // 1. Add the saved login token.
   const headers: Record<string, string> = {}
@@ -43,18 +59,26 @@ async function request<T>(path: string, method: string, body?: unknown): Promise
     headers.Authorization = `Bearer ${token}`
   }
 
-  // 3. Send the request to the backend.
-  const response = await fetch(BASE_URL + path, {
-    method,
-    headers,
-    body: requestBody,
-  })
+  // 3. Send the request to the backend. If backend is unreachable and response.ok is never called this will throw an error.
+  let response: Response
+
+  try {
+    response = await fetch(BASE_URL + path, {
+      method,
+      headers,
+      body: requestBody,
+    })
+  } catch {
+    throw new Error(
+      'Could not reach the server. Check your connection and try again.'
+    )
+  }
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response))
   }
 
-  // 4. Return the result. A 204 response has no JSON body.
+  // 4. Return the result. A 204 (No Content) response has no JSON body.
   if (response.status === 204) {
     return undefined as T
   }
