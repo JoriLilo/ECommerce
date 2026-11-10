@@ -28,7 +28,13 @@ export function getUser(): User | null {
 // Returns the saved token used by backend requests.
 export function getToken(): string | null {
   const auth = getAuth()
-  return auth ? auth.token : null
+  return auth ? auth.accessToken : null
+}
+
+//Returns the saved refresh token used by backend requests.
+export function getRefreshToken(): string | null {
+  const auth = getAuth()
+  return auth ? auth.refreshToken : null
 }
 
 // Removes the saved session from this browser.

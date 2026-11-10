@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getUser, logout } from '../../utils/auth'
+import { logoutBackend } from '../../services/authService'
 
 // Displays navigation, product search, and the total cart quantity.
 export default function Navbar() {
@@ -128,7 +129,7 @@ export default function Navbar() {
 
                 <div className="dropdown-divider" />
 
-                <button onClick={handleLogout}>Logout</button>
+                <button onClick={logoutBackend}>Logout</button>
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { apiPost } from './api'
 import type { LoginRequest, LoginResponse, RegisterRequest } from '../types/user'
+import { getRefreshToken } from '../utils/auth'
 
 // Sends the login details and returns the user and token.
 export function login(data: LoginRequest): Promise<LoginResponse> {
@@ -21,4 +22,20 @@ export async function register(data: RegisterRequest): Promise<LoginResponse> {
     password: registration.password,
   })
   return session
+}
+
+
+export async function logoutBackend(): Promise<void> {
+  try {
+    const refreshToken = getRefreshToken()
+    if(refreshToken) {
+
+    await apiPost('/auth/logout', {refreshToken})
+
+  }
+  }finally {
+    // Always clear the local session, even if the backend request fails.
+    localStorage.removeItem('auth')
+  }
+  
 }

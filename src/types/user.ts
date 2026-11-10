@@ -15,10 +15,12 @@ export interface LoginRequest {
   password: string
 }
 
-// Contains the token and user returned after a successful login.
+// Contains the access token and user returned after a successful login.
 export interface LoginResponse {
-  token: string
+  accessToken: string
   user: User
+  refreshToken: string
+  tokenType: string
 }
 
 // Contains registration fields and the role selected in the form.

@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { getUser, logout } from '../../utils/auth'
 import './AccountLayout.css'
+import { logoutBackend } from '../../services/authService'
 
 // Keeps account navigation visible while the selected child page changes.
 export default function AccountLayout() {
@@ -42,7 +43,7 @@ export default function AccountLayout() {
           )}
         </nav>
 
-        <button type="button" className="account-signout" onClick={handleLogout}>
+        <button type="button" className="account-signout" onClick={logoutBackend}>
           Sign out
         </button>
       </aside>

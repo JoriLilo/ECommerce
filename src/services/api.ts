@@ -1,6 +1,11 @@
-import { getToken } from '../utils/auth'
+import { getToken , getRefreshToken , saveAuth} from '../utils/auth'
 
 const BASE_URL = '/api'
+
+//the refresh operation currently running.
+let refreshPromise: Promise<void> | null = null
+
+
 
 function getFallbackMessage(status: number): string {
   if(status >= 400 && status < 500) {
@@ -41,11 +46,71 @@ async function getErrorMessage(response: Response): Promise<string> {
   
 }
 
+
+//requests and saves a new token pair.
+async function refreshSession(): Promise<void> {
+
+
+  // 1. Get the refresh token from local storage.
+  const refreshToken = getRefreshToken()
+  if(!refreshToken) {
+    throw new Error('No refresh token available.')
+  }
+
+  // 2. Send the refresh token to the backend to get a new access token and refresh token.
+  const response = await fetch(BASE_URL + '/auth/refresh', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ refreshToken }),
+  })
+
+  if(response.status === 401) {
+    throw new Error("Session expired. Please sign in again.")
+  }
+
+  // 3. If the response is not OK, throw an error. Otherwise, parse the new tokens and save them.
+ if (!response.ok) {
+  throw new Error(`Failed to refresh token: ${response.status}`)
+}
+
+  // 4. Parse the response and save the new tokens.
+  const data = await response.json()
+  const accessToken = data.accessToken
+  const newRefreshToken = data.refreshToken
+  const tokenType = data.tokenType
+  const user = data.user
+  if(accessToken && newRefreshToken && tokenType && user) {
+    saveAuth({ accessToken,  refreshToken: newRefreshToken, tokenType, user })
+  } else {
+    throw new Error('Invalid response from refresh token endpoint.')
+  }
+}
+
+
+
+async function checkAndRefreshToken(): Promise<void> {
+
+  if(!refreshPromise) {
+    refreshPromise = refreshSession();
+  }
+  const existingRefresh = refreshPromise;
+  try{
+    await existingRefresh;
+  }finally {
+    if(refreshPromise === existingRefresh) {
+      refreshPromise = null;
+    }
+  }
+}
+
 // T is the response type (similar to a generic type in Java).
 async function request<T>(path: string, method: string, body?: unknown): Promise<T> {
   // 1. Add the saved login token.
   const headers: Record<string, string> = {}
   const token = getToken()
+  const refreshToken = getRefreshToken()
   let requestBody: string | FormData | undefined
 
   // 2. Send images as FormData and other data as JSON.
@@ -73,6 +138,35 @@ async function request<T>(path: string, method: string, body?: unknown): Promise
       'Could not reach the server. Check your connection and try again.'
     )
   }
+
+  if (response.status === 401 && token && refreshToken && !path.startsWith('/auth/')) {
+    
+  
+      if (token === getToken()) {
+        await checkAndRefreshToken()
+      }
+      // Retry the original request with the new token.
+      const newToken = getToken()
+
+      if (!newToken) {
+        throw new Error('Please sign in again.')
+      }
+        
+      headers.Authorization = `Bearer ${newToken}`
+      try {
+        response = await fetch(BASE_URL + path, {
+          method,
+          headers,
+          body: requestBody,
+     
+        })
+      } catch {
+        throw new Error(
+          'Could not reach the server. Check your connection and try again.'
+        )
+      }
+  }
+
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response))
