@@ -21,6 +21,8 @@ export async function register(data: RegisterRequest): Promise<LoginResponse> {
     email: registration.email,
     password: registration.password,
   })
+
+  
   return session
 }
 
@@ -37,5 +39,5 @@ export async function logoutBackend(): Promise<void> {
     // Always clear the local session, even if the backend request fails.
     localStorage.removeItem('auth')
   }
-  
+
 }

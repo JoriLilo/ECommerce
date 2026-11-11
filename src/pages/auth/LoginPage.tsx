@@ -1,3 +1,4 @@
+import './PasswordReset.css'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
@@ -78,6 +79,9 @@ export default function LoginPage() {
         placeholder="Enter your password"
         onChange={setPassword}
       />
+      <p className="password-reset-link">
+        <Link to="/forgot-password" className="auth-link">Forgot password?</Link>
+      </p>
       <ErrorMessage message={error} />
       <SubmitButton loading={loading} text="Sign in" loadingText="Logging in..." />
     </AuthLayout>

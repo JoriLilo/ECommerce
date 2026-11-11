@@ -1,0 +1,48 @@
+/* Scoped seller application styling keeps the rest of the seller workspace intact. */
+.application-page { max-width: 940px; padding: 48px 24px; }
+.application-header { max-width: 680px; margin-bottom: 32px; }
+.application-page .application-eyebrow { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 2px; margin: 0 0 14px; }
+.application-page .application-header h1 { font-family: Georgia, serif; font-size: clamp(32px, 5vw, 48px); line-height: 1.12; margin: 0 0 16px; letter-spacing: -1px; }
+.application-header > p:last-child { color: var(--muted); line-height: 1.7; font-size: 16px; }
+.application-page .seller-panel,
+.application-form { background: var(--card); border: 1px solid #c98bb933; border-radius: 20px; padding: 32px; margin: 0 0 24px; }
+.application-step { display: block; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 1.8px; }
+.application-page .application-intro h2,
+.application-page .application-form-heading h2 { margin: 12px 0; font-size: 26px; font-weight: 600; }
+.application-intro > p,
+.application-form-heading p,
+.application-status p { color: var(--muted); line-height: 1.7; }
+.application-status a { display: inline-block; margin-top: 16px; color: var(--accent); text-decoration: underline; }
+.application-steps { list-style: none; margin: 28px 0 32px; padding: 0; display: grid; gap: 24px; }
+.application-steps li { display: flex; gap: 16px; align-items: start; }
+.application-steps li > span { flex: 0 0 38px; height: 38px; display: grid; place-items: center; border: 1px solid #c98bb944; border-radius: 12px; color: var(--accent); font-size: 12px; }
+.application-steps h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.application-steps p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.application-form-heading { padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #c98bb933; }
+.application-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.application-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.application-field-wide { grid-column: 1 / -1; }
+.application-field label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; }
+.application-field input,
+.application-field textarea { display: block; width: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid #c98bb955; border-radius: 10px; background: var(--bg); color: var(--text); font: inherit; font-size: 14px; }
+.application-field input::placeholder,
+.application-field textarea::placeholder { color: var(--muted); opacity: 0.65; }
+.application-field textarea { resize: vertical; min-height: 110px; }
+.application-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
+.application-page .application-primary,
+.application-actions button { padding: 13px 22px; border: 1px solid #c98bb955; border-radius: 10px; font: inherit; font-size: 14px; cursor: pointer; min-height: 46px; }
+.application-actions button { background: transparent; color: var(--text); }
+.application-page .application-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
+.application-page .application-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.application-page :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.application-form fieldset:disabled { opacity: 0.6; }
+.application-page .application-footer { padding-top: 8px; gap: 24px; }
+.application-page .application-footer .btn-primary { width: auto; background: transparent; color: var(--muted); border: 1px solid #c98bb944; font-weight: 500; padding: 10px 16px; }
+.application-page .application-footer a { border: 0; padding: 0; font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 600px) {
+  .application-page { padding: 28px 16px; }
+  .application-page .seller-panel, .application-form { padding: 24px 20px; }
+  .application-fields { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .application-actions { align-items: stretch; flex-direction: column; }
+  .application-intro > .application-primary { width: 100%; }
+}

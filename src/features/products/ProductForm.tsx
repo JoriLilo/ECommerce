@@ -1,3 +1,4 @@
+import ProductImagePicker from './ProductImagePicker'
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import FormField from '../../components/common/FormField'
@@ -11,7 +12,7 @@ interface ProductFormProps {
   initial?: ProductInput
   requireImage?: boolean
   submitText: string
-  onSubmit: (data: ProductInput, image: File | null) => Promise<void>
+  onSubmit: (data: ProductInput, images: File[]) => Promise<void>
 }
 
 // Collects product details, loads categories, and validates before calling onSubmit.
@@ -26,7 +27,7 @@ export default function ProductForm({
   const [price, setPrice] = useState(String(initial?.price ?? ''))
   const [quantity, setQuantity] = useState(String(initial?.quantity ?? ''))
   const [categoryId, setCategoryId] = useState(String(initial?.categoryId ?? ''))
-  const [image, setImage] = useState<File | null>(null)
+  const [images, setImages] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
@@ -65,16 +66,20 @@ export default function ProductForm({
     const selectedCategory = categories.find((category) => category.id === product.categoryId)
     if (!selectedCategory)
       throw new Error('Choose a category.')
-    if (requireImage && !image) throw new Error('Choose a product picture.')
-    if (image && !['image/jpeg', 'image/png', 'image/webp'].includes(image.type))
-      throw new Error('Choose a JPEG, PNG or WebP image.')
-    if (image && image.size > 5 * 1024 * 1024)
-      throw new Error('Choose an image smaller than 5 MB.')
+    if (requireImage && images.length === 0) throw new Error('Choose at least one product picture.')
+    if (images.length > 8) throw new Error('Choose up to 8 pictures.')
+    for (const image of images) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(image.type))
+        throw new Error('Choose JPEG, PNG or WebP images.')
+      if (image.size > 5 * 1024 * 1024)
+        throw new Error('Each picture must be 5 MB or smaller.')
+    }
   }
 
   // Converts form values, validates them, and waits for the parent save operation.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (saving) return
     setError(null)
     setSaving(true)
 
@@ -88,13 +93,14 @@ export default function ProductForm({
 
     try {
       validateProduct(product)
-      await onSubmit(product, image)
+      await onSubmit(product, images)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save product.')
     } finally {
       setSaving(false)
     }
   }
+
 
   return (
     <form onSubmit={handleSubmit} className="checkout">
@@ -125,21 +131,7 @@ export default function ProductForm({
         )}
       </div>
       {requireImage && (
-        <div className="form-group">
-          <label htmlFor="new-product-image" className="form-label">
-            Product picture
-          </label>
-          <input
-            id="new-product-image"
-            className="form-input"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            required
-            disabled={saving}
-            onChange={(event) => setImage(event.target.files?.[0] ?? null)}
-          />
-          <p>JPEG, PNG or WebP. Maximum size: 5 MB.</p>
-        </div>
+        <ProductImagePicker files={images} onChange={setImages} onError={setError} disabled={saving} />
       )}
       <ErrorMessage message={error} />
       <button type="submit" className="btn-primary" disabled={cannotSave}>

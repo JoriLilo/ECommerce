@@ -7,43 +7,74 @@ let refreshPromise: Promise<void> | null = null
 
 
 
+// Used when the backend provides no usable error message.
 function getFallbackMessage(status: number): string {
-  if(status >= 400 && status < 500) {
-    return 'There was a problem with your request.'
-  }
-  if(status >= 500 && status < 600) {
-    return 'The server encountered an error. Please try again later.'
-  }
-  return 'An unexpected error occurred.'
+  let msg = 'Something went wrong. Please try again.'
 
+  switch (status) {
+    case 400:
+    case 422:
+      msg = 'Please check your information and try again.'
+      break
+    case 401:
+      msg = 'Please sign in again.'
+      break
+    case 403:
+      msg = 'You do not have permission to do this.'
+      break
+    case 404:
+      msg = 'The requested item could not be found.'
+      break
+    case 409:
+      msg = 'This action conflicts with the current information. Refresh and try again.'
+      break
+    case 413:
+      msg = 'The uploaded file is too large.'
+      break
+    case 429:
+      msg = 'Too many requests. Please wait a moment and try again.'
+      break
+    default:
+      if (status >= 500 && status < 600) {
+        msg = 'The server could not complete your request. Please try again later.'
+      }
+      break
+  }
+
+  return msg
 }
 
-// Reads backend validation errors, then falls back to a message for the HTTP status.
+// Reads backend validation errors, then falls back to the HTTP status.
 async function getErrorMessage(response: Response): Promise<string> {
-  const text = await response.text() //reads respopnse body as text.
-
-  if (text.trim() === 'Invalid CORS request') {
-    return 'The backend does not allow this frontend address. Check the backend CORS settings.'
-  }
+  let msg = getFallbackMessage(response.status)
 
   try {
-    const error: { message?: string; fieldErrors?: Record<string, string> } = JSON.parse(text)
-    const fields = Object.values(error.fieldErrors || {})
-    if (fields.length > 0) return fields.join('. ')
-    if (error.message) return error.message
+    const text = await response.text()
+
+    if (text.trim() === 'Invalid CORS request') {
+      msg = 'The backend does not allow this frontend address. Check the backend CORS settings.'
+    } else {
+      const error: {
+        message?: string
+        fieldErrors?: Record<string, string>
+      } = JSON.parse(text)
+
+      const fields = Object.values(error.fieldErrors || {})
+
+      if (fields.length > 0) {
+        msg = fields.join('. ')
+      } else if (
+        typeof error.message === 'string' &&
+        error.message.trim().length > 0
+      ) {
+        msg = error.message.trim()
+      }
+    }
   } catch {
-
+    // Keep the fallback if reading or parsing the response fails.
   }
 
-  if (response.status === 401) {
-    return 'Please sign in again.'
-  }
-  if (response.status === 403){return 'You do not have permission to do this.'
-
-  }
-    return getFallbackMessage(response.status)
-  
-  
+  return msg
 }
 
 
@@ -70,7 +101,7 @@ async function refreshSession(): Promise<void> {
     throw new Error("Session expired. Please sign in again.")
   }
 
-  // 3. If the response is not OK, throw an error. Otherwise, parse the new tokens and save them.
+  // 3. If the response is not OK, throw an error. 
  if (!response.ok) {
   throw new Error(`Failed to refresh token: ${response.status}`)
 }

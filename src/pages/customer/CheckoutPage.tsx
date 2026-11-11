@@ -51,7 +51,7 @@ export default function CheckoutPage() {
     setError(null)
     try {
       const order = await createOrder(Number(addressId))
-      navigate(`/payment-result?orderId=${order.id}`)
+      navigate(`/payment/${order.id}`)
       notifyCartChanged()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not place order.')

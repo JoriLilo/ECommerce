@@ -1,3 +1,4 @@
+import ProductImagePicker from '../../features/products/ProductImagePicker'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import ProductForm from '../../features/products/ProductForm'
@@ -19,7 +20,8 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState('')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -31,6 +33,7 @@ export default function EditProductPage() {
       setLoading(true)
       setError(null)
       setProduct(null)
+      setFiles([])
       try {
         const result = await getMyProduct(Number(id))
         if (!cancelled) setProduct(result)
@@ -54,33 +57,43 @@ export default function EditProductPage() {
     setMessage('Product details saved.')
   }
 
-  // Uploads the selected image and refreshes the product details.
+  // Upload files sequentially to respect the backend's eight-image limit.
   async function handleUpload() {
-    if (!file) return
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setError('Choose a JPEG, PNG or WebP image.')
+    if (!product || files.length === 0 || uploading) return
+    if (product.images.length + files.length > 8) {
+      setError(`You can add ${Math.max(0, 8 - product.images.length)} more picture(s).`)
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Choose an image smaller than 5 MB.')
-      return
+    for (const file of files) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+        setError('Each picture must be JPEG, PNG or WebP and 5 MB or smaller.')
+        return
+      }
     }
     setUploading(true)
     setError(null)
     setMessage('')
+    let completed = 0
     try {
-      await uploadProductImage(Number(id), file)
-      const result = await getMyProduct(Number(id))
-      setProduct(result)
-      setFile(null)
-      setMessage('Image uploaded.')
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'Could not upload image. Your product details are saved.',
-      )
+      for (const file of files) {
+        setUploadProgress(`Uploading picture ${completed + 1} of ${files.length}…`)
+        await uploadProductImage(Number(id), file)
+        completed++
+        // A retry sends only files not yet confirmed as uploaded.
+        setFiles(files.slice(completed))
+      }
+      setMessage(`${completed} picture(s) uploaded.`)
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : 'Please try again.'
+      setError(`${completed} picture(s) uploaded. Remaining files are selected for retry. ${reason}`)
     } finally {
+      // Refresh even after a partial failure so existing photos stay visible.
+      try {
+        setProduct(await getMyProduct(Number(id)))
+      } catch {
+        setError('Could not refresh the product photos. Reload this page before uploading again to check which photos were saved.')
+      }
+      setUploadProgress('')
       setUploading(false)
     }
   }
@@ -119,18 +132,6 @@ export default function EditProductPage() {
       {product && (
         <>
           <StatusBadge status={product.productStatus} />
-          <ProductForm
-            key={product.id}
-            submitText="Save changes"
-            initial={{
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              quantity: product.quantity,
-              categoryId: product.category.id,
-            }}
-            onSubmit={handleSave}
-          />
           <section className="seller-panel">
             <h2>Product images</h2>
             <div className="seller-image-list">
@@ -152,24 +153,33 @@ export default function EditProductPage() {
                 </div>
               ))}
             </div>
-            <label htmlFor="product-image">Choose a JPEG, PNG or WebP image</label>
-            <input
-              id="product-image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={uploading}
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            />
-            <p>You can upload up to 8 images, one at a time. Maximum size: 5 MB each.</p>
+            <p>{product.images.length}/8 photos already uploaded. Select more below, then press Upload selected photos.</p>
+            <ProductImagePicker files={files} onChange={setFiles} onError={setError}
+              disabled={uploading} maxFiles={Math.max(0, 8 - product.images.length)} />
+            {uploadProgress && <p role="status">{uploadProgress}</p>}
             <button
               className="btn btn-primary"
               type="button"
-              disabled={!file || uploading || product.images.length >= 8}
+              disabled={files.length === 0 || uploading || product.images.length >= 8}
               onClick={handleUpload}
             >
-              {uploading ? 'Uploading…' : 'Upload image'}
+              {uploading ? 'Uploading…' : `Upload selected photos (${files.length})`}
             </button>
           </section>
+          <h2>Product details</h2>
+          <ProductForm
+            key={product.id}
+            submitText="Save product details"
+            initial={{
+              name: product.name,
+              description: product.description,
+              price: product.price,
+              quantity: product.quantity,
+              categoryId: product.category.id,
+            }}
+            onSubmit={handleSave}
+          />
+
         </>
       )}
     </div>

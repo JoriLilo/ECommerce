@@ -2,7 +2,7 @@ import useCart from '../../hooks/useCart'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { getUser, logout } from '../../utils/auth'
+import { getUser } from '../../utils/auth'
 import { logoutBackend } from '../../services/authService'
 
 // Displays navigation, product search, and the total cart quantity.
@@ -28,7 +28,7 @@ export default function Navbar() {
 
   // Clears the saved session and opens the login page.
   function handleLogout() {
-    logout()
+    logoutBackend()
     window.location.href = '/login'
   }
 
@@ -129,7 +129,7 @@ export default function Navbar() {
 
                 <div className="dropdown-divider" />
 
-                <button onClick={logoutBackend}>Logout</button>
+                <button onClick={handleLogout}>Logout</button>
               </div>
             )}
           </div>

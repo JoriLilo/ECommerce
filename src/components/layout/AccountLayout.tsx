@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { getUser, logout } from '../../utils/auth'
+import { getUser } from '../../utils/auth'
 import './AccountLayout.css'
 import { logoutBackend } from '../../services/authService'
 
@@ -10,7 +10,7 @@ export default function AccountLayout() {
     .map((name) => name[0]).join('').toUpperCase() || '?'
 
   function handleLogout() {
-    logout()
+    logoutBackend()
     window.location.href = '/login'
   }
 
@@ -43,7 +43,7 @@ export default function AccountLayout() {
           )}
         </nav>
 
-        <button type="button" className="account-signout" onClick={logoutBackend}>
+        <button type="button" className="account-signout" onClick={handleLogout}>
           Sign out
         </button>
       </aside>

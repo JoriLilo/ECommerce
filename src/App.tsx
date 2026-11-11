@@ -1,3 +1,5 @@
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import AdminLayout from './components/layout/AdminLayout'
 import AccountLayout from './components/layout/AccountLayout'
 import MyStorePage from './pages/seller/MyStorePage'
@@ -22,6 +24,7 @@ import HomePage from './pages/customer/HomePage'
 import ProductListPage from './pages/customer/ProductListPage'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import  PaymentPage from './pages/customer/PaymentPage'
 
 import ProductDetailsPage from './pages/customer/ProductDetailsPage'
 import CartPage from './pages/customer/CartPage'
@@ -45,6 +48,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<Layout />}>
@@ -72,6 +77,15 @@ function App() {
              
                 <CheckoutPage />
               
+            }
+          />
+
+          <Route
+            path="/payment/:orderId"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
             }
           />
           <Route

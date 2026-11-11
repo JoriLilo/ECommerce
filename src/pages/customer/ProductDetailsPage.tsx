@@ -1,3 +1,5 @@
+import ProductGallery from '../../features/products/ProductGallery'
+import ProductReviews from '../../features/products/ProductReviews'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getProduct } from '../../services/productService'
@@ -86,11 +88,7 @@ export default function ProductDetailsPage() {
         ← Back to products
       </Link>
       <div className="details">
-        {product.images[0] ? (
-          <img src={product.images[0]} alt={product.name} />
-        ) : (
-          <p>No image uploaded yet.</p>
-        )}
+        <ProductGallery key={product.id} images={product.images} name={product.name} />
         <div>
           <h1>{product.name}</h1>
           <p className="product-store">
@@ -123,6 +121,7 @@ export default function ProductDetailsPage() {
           )}
         </div>
       </div>
+      <ProductReviews key={product.id} productId={product.id} />
     </div>
   )
 }

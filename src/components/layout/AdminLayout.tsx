@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { getUser, logout } from '../../utils/auth'
+import { getUser } from '../../utils/auth'
 import './AdminLayout.css'
 import { logoutBackend } from '../../services/authService'
 
@@ -8,7 +8,7 @@ export default function AdminLayout() {
   const user = getUser()
 
   function handleLogout() {
-    logout()
+    logoutBackend()
     window.location.href = '/login'
   }
 
@@ -33,7 +33,9 @@ export default function AdminLayout() {
           <p>{user?.fullName}</p>
           <Link to="/profile">My account</Link>
           <Link to="/products">Back to shop</Link>
-          <button type="button" onClick={logoutBackend}>Sign out</button>
+          <button type="button" onClick={handleLogout}>
+            Sign out
+          </button>
         </div>
       </aside>
 
