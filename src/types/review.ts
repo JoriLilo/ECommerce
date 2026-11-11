@@ -2,8 +2,7 @@
 export interface ProductReview {
   id: number
   productId: number
-  userId: number
-  userName: string
+  userFullName: string
   rating: number
   comment: string
   createdOn: string

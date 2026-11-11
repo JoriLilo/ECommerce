@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { getUser } from '../../utils/auth'
-import { createProductReview, getProductReviews } from '../../services/reviewService'
+import { createProductReview, getProductReviews, getMyProductReview } from '../../services/reviewService'
 import type { ProductReview } from '../../types/review'
 import './ProductReviews.css'
 
 // One instance per product. The backend remains responsible for enforcing uniqueness.
 export default function ProductReviews({ productId }: { productId: number }) {
   const [reviews, setReviews] = useState<ProductReview[]>([])
+  const [myReview, setMyReview] = useState<ProductReview | null>(null)
+  const [ownershipError, setOwnershipError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -20,6 +22,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
   const mounted = useRef(false)
   const submitting = useRef(false)
   const user = getUser()
+  const userId = user?.id
 
   useEffect(function trackMount() {
     mounted.current = true
@@ -31,30 +34,36 @@ export default function ProductReviews({ productId }: { productId: number }) {
     async function load() {
       setLoading(true)
       setLoadError(null)
-      try {
-        const data = await getProductReviews(productId)
-        if (!cancelled) setReviews(data)
-      } catch {
-        if (!cancelled) setLoadError('Reviews could not be loaded. Please try again later.')
-      } finally {
-        if (!cancelled) setLoading(false)
+      setOwnershipError(null)
+      const results = await Promise.allSettled([
+        getProductReviews(productId),
+        userId !== undefined ? getMyProductReview(productId) : Promise.resolve(null),
+      ])
+      if (cancelled) return
+      const publicResult = results[0]
+      const ownResult = results[1]
+      if (publicResult.status === 'fulfilled') setReviews(publicResult.value)
+      else setLoadError('Reviews could not be loaded. Please try again later.')
+      if (ownResult.status === 'fulfilled') setMyReview(ownResult.value)
+      else {
+        setMyReview(null)
+        setOwnershipError('Could not check your existing review. Refresh reviews before submitting.')
       }
+      setLoading(false)
     }
     load()
     return function cleanup() { cancelled = true }
-  }, [productId, refreshCount])
+  }, [productId, refreshCount, userId])
 
-  let myReview: ProductReview | undefined
   let ratingTotal = 0
   const entries = []
   for (const review of reviews) {
     ratingTotal += review.rating
-    if (review.userId === user?.id) myReview = review
     const date = new Date(review.createdOn)
     entries.push(
       <article className="review-entry" key={review.id}>
         <div className="review-entry-heading">
-          <strong>{review.userName || 'Shopper'}{review.userId === user?.id ? ' (you)' : ''}</strong>
+          <strong>{review.userFullName || 'Shopper'}{review.id === myReview?.id ? ' (you)' : ''}</strong>
           {!Number.isNaN(date.getTime()) && <time dateTime={review.createdOn}>{date.toLocaleDateString()}</time>}
         </div>
         <p className="review-stars" aria-label={`${review.rating} out of 5 stars`}>
@@ -72,7 +81,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (submitting.current || myReview || submitted || loading || loadError) return
+    if (submitting.current || myReview || submitted || loading || loadError || ownershipError) return
     if (!getUser()) {
       setSaveError('Please sign in before posting a review.')
       return
@@ -86,8 +95,9 @@ export default function ProductReviews({ productId }: { productId: number }) {
     setSaving(true)
     setSaveError(null)
     try {
-      await createProductReview(productId, { rating: score, comment: comment.trim() })
+      const savedReview = await createProductReview(productId, { rating: score, comment: comment.trim() })
       if (mounted.current) {
+        setMyReview(savedReview)
         setSubmitted(true)
         setComment('')
         setRefreshCount(incrementRefresh)
@@ -120,6 +130,7 @@ export default function ProductReviews({ productId }: { productId: number }) {
           <div className="reviews-list">{entries.length ? entries : <p className="reviews-empty">No reviews yet. Share your experience with this product.</p>}</div>
           <div className="review-compose">
             {!user ? <><h3>Share your experience</h3><p><Link to="/login">Sign in</Link> to review this product.</p></>
+              : ownershipError ? <div role="alert"><p>{ownershipError}</p><button type="button" onClick={handleRefresh}>Refresh reviews</button></div>
               : myReview || submitted ? <><h3>You’ve reviewed this product</h3><p>One review per product keeps feedback fair. You can review other products too.</p></>
               : <form onSubmit={handleSubmit}>
                 <h3>Write a review</h3><p>One review per account for this product.</p>
