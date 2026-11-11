@@ -1,10 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import {
-  PaymentElement,
-  useElements,
-  useStripe,
-} from '@stripe/react-stripe-js'
+import { PaymentElement, useElements, useStripe} from '@stripe/react-stripe-js'
 import ErrorMessage from '../../components/common/ErrorMessage'
 
 interface PaymentFormProps {
@@ -12,6 +8,8 @@ interface PaymentFormProps {
 }
 
 export default function PaymentForm({ orderId }: PaymentFormProps) {
+
+    //read the stripe objects from the parent provider
   const stripe = useStripe()
   const elements = useElements()
   const [submitting, setSubmitting] = useState(false)
@@ -28,14 +26,22 @@ export default function PaymentForm({ orderId }: PaymentFormProps) {
     const returnUrl =
       `${window.location.origin}/payment-result?orderId=${orderId}`
 
+     
     try {
+
+     //asking stripe to confirm payment 
       const result = await stripe.confirmPayment({
+        //gives the payment information collected by Stripe fields
         elements,
         confirmParams: {
+            //where to return the customer 
           return_url: returnUrl,
         },
+        //avoids automatic redirect sepse disa payment methods bejne redirect to another webiste for example their bank to authorize payment
+        //nuk i ben prevent all redirects.
         redirect: 'if_required',
       })
+
 
       if (result.error) {
         setError(result.error.message || 'Payment could not be completed.')
@@ -44,7 +50,7 @@ export default function PaymentForm({ orderId }: PaymentFormProps) {
         result.paymentIntent?.status === 'succeeded' ||
         result.paymentIntent?.status === 'processing'
       ) {
-        // The result page checks the order status saved by the backend.
+        // after checking results navigates to result page
         window.location.assign(returnUrl)
       } else {
         setError('Payment is not complete. Please check your payment details.')

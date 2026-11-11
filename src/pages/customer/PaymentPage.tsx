@@ -11,9 +11,10 @@ import { stripePromise } from '../../utils/stripeConfig'
 import PaymentForm from '../../features/payment/PaymentForm'
 
 
-
+// Processing a paymemnt
 export default function PaymentPage() {
 
+    //read order id from URL
     const { orderId } = useParams()
     const id = Number(orderId)
     const [order, setOrder] = useState<Order | null>(null)
@@ -37,12 +38,14 @@ export default function PaymentPage() {
                 }
 
             
-              
+                    //Load the order from backend
                     const loadedOrder  : Order = await getOrder(id)
 
                 if (!cancelled) {
+                    //save the order
                     setOrder( loadedOrder)
 
+                    //check its status
                     if(loadedOrder.status ===  'PENDING_PAYMENT'){
                         const response  : PaymentIntentResponse = await paymentProcessing({ orderId : id })
                         if (!cancelled){
@@ -62,13 +65,13 @@ export default function PaymentPage() {
             }
         
         }
-
+        //starts the request
         load()
-        function cleanup() {
-            cancelled = true
-        }
-
-        return cleanup
+        //ben cancel p.sh ben nje kerkese tjeter
+        //return kthen funksionin pa e ekzekutuar.
+        return () => {
+                cancelled = true;
+            };
         
     }, [id])
 
