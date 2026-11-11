@@ -1,3 +1,4 @@
+import OrderRefund from '../../features/refunds/OrderRefund'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getAdminOrder } from '../../services/adminService'
@@ -36,6 +37,11 @@ export default function AdminOrderDetailsPage() {
     }
   }, [id])
 
+  async function refreshOrderAfterRefund() {
+    const data = await getAdminOrder(Number(id))
+    setOrder(data)
+  }
+
   if (loading) return <p role="status">Loading order…</p>
   return (
     <section className="content-page">
@@ -69,6 +75,7 @@ export default function AdminOrderDetailsPage() {
             </article>
           ))}
           <h2>Total: ${Number(order.totalAmount).toFixed(2)}</h2>
+          <OrderRefund key={order.id} order={order} admin onRefresh={refreshOrderAfterRefund} />
         </>
       )}
     </section>

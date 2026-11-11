@@ -1,3 +1,4 @@
+import RefundHistory from './features/refunds/RefundHistory'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import AdminLayout from './components/layout/AdminLayout'
@@ -135,6 +136,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route path="/refunds" element={<RefundHistory />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/addresses" element={<AddressesPage />} />
             <Route path="/orders" element={<CustomerOrdersPage />} />
@@ -149,6 +151,7 @@ function App() {
               </ProtectedRoute>
             }
           >
+            <Route path="/admin/refunds" element={<RefundHistory admin />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/products" element={<AdminProductsPage />} />
             <Route path="/admin/orders" element={<AdminOrdersPage />} />

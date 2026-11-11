@@ -28,6 +28,7 @@ export default function AccountLayout() {
         <nav className="account-navigation" aria-label="Account navigation">
           <NavLink to="/profile" end>My profile</NavLink>
           <NavLink to="/orders">My orders</NavLink>
+          <NavLink to="/refunds">My refunds</NavLink>
           <NavLink to="/addresses">My addresses</NavLink>
           {user?.role === 'CUSTOMER' && (
             <NavLink to="/seller/application-status">Seller application status</NavLink>

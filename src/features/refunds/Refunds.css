@@ -1,0 +1,11 @@
+/* Refund controls are scoped to avoid changing checkout and seller forms. */
+.refund-panel { background: var(--card); border: 1px solid #c98bb944; border-radius: 16px; padding: 24px; margin: 24px 0; }
+.refund-panel p { color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
+.refund-panel a { color: var(--accent); text-decoration: underline; }
+.refund-panel label { display: block; margin: 18px 0 8px; }
+.refund-panel select { display: block; max-width: 100%; width: 100%; padding: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--muted); border-radius: 8px; font: inherit; }
+.refund-panel button, .refund-refresh, .refunds-page .page-actions button { margin-top: 16px; padding: 11px 18px; border: 1px solid var(--muted); border-radius: 8px; background: var(--accent); color: var(--bg); font: inherit; font-weight: 600; cursor: pointer; }
+.refund-panel button:disabled, .refund-refresh:disabled, .refunds-page button:disabled { opacity: 0.5; cursor: not-allowed; }
+.refund-heading { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+.refund-heading h2 { margin: 0; }
+.refund-panel :focus-visible, .refunds-page button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

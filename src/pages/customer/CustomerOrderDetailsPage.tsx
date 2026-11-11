@@ -1,3 +1,4 @@
+import OrderRefund from '../../features/refunds/OrderRefund'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { cancelOrder, getOrder } from '../../services/orderService'
@@ -51,6 +52,11 @@ export default function CustomerOrderDetailsPage() {
     }
   }
 
+  async function refreshOrderAfterRefund() {
+    const data = await getOrder(Number(id))
+    setOrder(data)
+  }
+
   if (loading) return <p role="status">Loading order…</p>
   if (!order) return <ErrorMessage message={error || 'Order not found.'} />
   const address = order.shippingAddress
@@ -67,7 +73,7 @@ export default function CustomerOrderDetailsPage() {
       {order.status === 'PENDING_PAYMENT' && (
         <>
           <p>
-            This order is awaiting payment. No payment is collected by this frontend yet.
+            This order is awaiting payment.
           </p>
           <button className="btn btn-danger" disabled={saving} onClick={handleCancel}>
             {saving ? 'Cancelling…' : 'Cancel unpaid order'}
@@ -88,6 +94,7 @@ export default function CustomerOrderDetailsPage() {
         </div>
       ))}
       <h2>Total: ${Number(order.totalAmount).toFixed(2)}</h2>
+      <OrderRefund key={order.id} order={order} onRefresh={refreshOrderAfterRefund} />
     </div>
   )
 }
